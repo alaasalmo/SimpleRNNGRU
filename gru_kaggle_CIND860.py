@@ -3,7 +3,7 @@ import random
 import tensorflow as tf
 from sklearn.metrics import classification_report
 
-# ── CONFIG ────────────────────────────────────────────────────────
+# CONFIG
 DATA_PATH  = "all-data.csv"
 BATCH_SIZE = 64
 VOCAB_SIZE = 5000
@@ -13,8 +13,7 @@ EPOCHS     = 30
 LABEL_MAP  = {"negative": 0, "neutral": 1, "positive": 2}
 
 
-# ── STEP 1: Read all-data.csv and split 80 / 20 ──────────────────
-# No temp files needed — we load everything into Python lists first.
+# STEP 1: Read all-data.csv and split 80 / 20
 
 texts, labels = [], []
 with open(DATA_PATH, encoding="latin-1") as f:
@@ -45,7 +44,7 @@ print(f"✓ Total rows   : {len(texts)}")
 print(f"✓ Training rows: {N_TRAIN}  |  Test rows: {N_TEST}")
 
 
-# ── STEP 2: make_dataset() ────────────────────────────────────────
+#STEP 2: make_dataset()
 # Builds a tf.data pipeline directly from Python lists —
 # no CSV files needed at this stage.
 
@@ -82,7 +81,7 @@ test_ds  = make_dataset(test_texts,  test_labels,  shuffle=False)
 print("tf.data pipelines ready")
 
 
-# ── STEP 3: TextVectorization ─────────────────────────────────────
+# STEP 3: TextVectorization
 # Learns vocabulary from training text only,
 # then converts every sentence to a padded integer sequence.
 
@@ -93,7 +92,7 @@ vectorizer = tf.keras.layers.TextVectorization(
 )
 
 vectorizer.adapt(train_texts)
-print(f"✓ Vocabulary built: {len(vectorizer.get_vocabulary())} tokens")
+print(f"Vocabulary built: {len(vectorizer.get_vocabulary())} tokens")
 
 # Apply vectorizer inside the pipeline
 def vectorize(text, label):
@@ -103,7 +102,7 @@ train_ds = train_ds.map(vectorize)
 test_ds  = test_ds.map(vectorize)
 
 
-# ── STEP 4: Build the SimpleRNN model ─────────────────────────────
+# STEP 4: Build the SimpleRNN model
 #
 #   Embedding  →  word ID → 32-number dense vector
 #   SimpleRNN  →  reads the sentence word by word, keeps memory
@@ -124,7 +123,7 @@ model.compile(
 model.summary()
 
 
-# ── STEP 5: Train ─────────────────────────────────────────────────
+# STEP 5: Train
 
 print("\n📚 Training...")
 history = model.fit(
@@ -137,7 +136,7 @@ history = model.fit(
 )
 
 
-# ── STEP 6: Evaluate — Precision, Recall, F1, Support ────────────
+# STEP 6: Evaluate — Precision, Recall, F1, Support
 
 print("\n📊 Evaluating...")
 
@@ -160,7 +159,7 @@ print(classification_report(
 ))
 
 
-# ── STEP 7: Predict any sentence ─────────────────────────────────
+# STEP 7: Predict any sentence
 
 def predict(sentence):
     vec   = vectorizer([sentence])
