@@ -8,7 +8,7 @@ DATA_PATH  = "all-data.csv"
 BATCH_SIZE = 64
 VOCAB_SIZE = 5000
 MAX_LEN    = 50
-EPOCHS     = 30
+EPOCHS     = 10
 
 LABEL_MAP  = {"negative": 0, "neutral": 1, "positive": 2}
 
@@ -117,7 +117,7 @@ y_true = y_true[:N_TEST]
 y_pred = y_pred[:N_TEST]
 
 print("\n" + "─" * 52)
-print("CLASSIFICATION REPORT")
+print("CLASSIFICATION REPORT SimpleRNN")
 print("─" * 52)
 print(classification_report(
     y_true, y_pred,

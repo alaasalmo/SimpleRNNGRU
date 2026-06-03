@@ -8,7 +8,7 @@ DATA_PATH  = "all-data.csv"
 BATCH_SIZE = 64
 VOCAB_SIZE = 5000
 MAX_LEN    = 50
-EPOCHS     = 30
+EPOCHS     = 10
 
 LABEL_MAP  = {"negative": 0, "neutral": 1, "positive": 2}
 
@@ -40,8 +40,8 @@ N_TEST           = len(test_texts)
 STEPS_PER_EPOCH  = N_TRAIN // BATCH_SIZE
 VALIDATION_STEPS = N_TEST  // BATCH_SIZE + 1
 
-print(f"✓ Total rows   : {len(texts)}")
-print(f"✓ Training rows: {N_TRAIN}  |  Test rows: {N_TEST}")
+print(f"Total rows   : {len(texts)}")
+print(f"Training rows: {N_TRAIN}  |  Test rows: {N_TEST}")
 
 
 #STEP 2: make_dataset()
@@ -125,7 +125,7 @@ model.summary()
 
 # STEP 5: Train
 
-print("\n📚 Training...")
+print("\nTraining...")
 history = model.fit(
     train_ds,
     steps_per_epoch=STEPS_PER_EPOCH,
@@ -138,7 +138,7 @@ history = model.fit(
 
 # STEP 6: Evaluate — Precision, Recall, F1, Support
 
-print("\n📊 Evaluating...")
+print("\nEvaluating...")
 
 y_true, y_pred = [], []
 for text_batch, label_batch in test_ds.take(VALIDATION_STEPS):
@@ -150,7 +150,7 @@ y_true = y_true[:N_TEST]
 y_pred = y_pred[:N_TEST]
 
 print("\n" + "─" * 52)
-print("CLASSIFICATION REPORT")
+print("CLASSIFICATION REPORT GRU")
 print("─" * 52)
 print(classification_report(
     y_true, y_pred,

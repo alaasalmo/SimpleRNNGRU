@@ -89,6 +89,27 @@ Refernce: https://www.kaggle.com/datasets/ankurzing/sentiment-analysis-for-finan
 <b>Result:</b>
 
 ```
+
+────────────────────────────────────────────────────
+
+CLASSIFICATION REPORT (SimpleRNN)
+
+────────────────────────────────────────────────────
+              precision    recall  f1-score   support
+
+    negative       0.44      0.42      0.43       105
+
+     neutral       0.75      0.78      0.77       585
+
+    positive       0.56      0.53      0.54       280
+
+    accuracy                           0.67       970
+
+   macro avg       0.58      0.58      0.58       970
+
+weighted avg       0.66      0.67      0.67       970
+
+
 ```
 
 <a href="gru_kaggle_CIND860.py">gru_kaggle_CIND860.py</a>
@@ -96,4 +117,23 @@ Refernce: https://www.kaggle.com/datasets/ankurzing/sentiment-analysis-for-finan
 <b>Result:</b>
 
 ```
+────────────────────────────────────────────────────
+
+CLASSIFICATION REPORT GRU
+
+────────────────────────────────────────────────────
+              precision    recall  f1-score   support
+
+    negative       0.41      0.47      0.44       105
+
+     neutral       0.78      0.76      0.77       585
+
+    positive       0.55      0.56      0.56       280
+
+    accuracy                           0.67       970
+
+   macro avg       0.58      0.60      0.59       970
+
+weighted avg       0.68      0.67      0.67       970
+
 ```
