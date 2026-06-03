@@ -1,4 +1,4 @@
-#  GRU — Financial Sentiment Analysis
+#  SimpleRNN — Financial Sentiment Analysis
 #  Dataset: zeroshot/twitter-financial-news-sentiment
 
 import random, time
@@ -36,7 +36,7 @@ def extract(split):
 train_texts, train_labels = extract("train")
 test_texts,  test_labels  = extract("validation")
 
-print(f"✓ Train: {len(train_texts)} | Test: {len(test_texts)}")
+print(f"Train: {len(train_texts)} | Test: {len(test_texts)}")
 
 
 # STEP 2: tf.data pipelines
@@ -58,7 +58,7 @@ vectorizer = tf.keras.layers.TextVectorization(
     standardize="lower_and_strip_punctuation"
 )
 vectorizer.adapt(train_texts)
-print(f"\n✓ Vocabulary: {len(vectorizer.get_vocabulary())} tokens")
+print(f"\nVocabulary: {len(vectorizer.get_vocabulary())} tokens")
 
 def vectorize(text, label):
     return vectorizer(text), label
@@ -67,15 +67,15 @@ train_ds = train_ds.map(vectorize)
 test_ds  = test_ds.map(vectorize)
 
 
-# STEP 4: Build GRU model
+# STEP 4: Build SimpleRNN model
 model = tf.keras.Sequential([
-    tf.keras.layers.Embedding(VOCAB_SIZE, 64),
-    tf.keras.layers.GRU(64),
+    tf.keras.layers.Embedding(VOCAB_SIZE, 64, input_length=MAX_LEN),
+    tf.keras.layers.SimpleRNN(64),
     tf.keras.layers.Dropout(0.3),
     tf.keras.layers.Dense(32, activation="relu"),
     tf.keras.layers.Dropout(0.2),
     tf.keras.layers.Dense(3, activation="softmax")
-], name="GRU")
+], name="SimpleRNN")
 
 model.compile(
     optimizer=tf.keras.optimizers.Adam(0.001),
@@ -86,7 +86,7 @@ model.summary()
 
 
 # STEP 5: Train
-print("\n📚 Training GRU...")
+print("\nTraining SimpleRNN...")
 t0 = time.time()
 history = model.fit(
     train_ds,
@@ -94,11 +94,11 @@ history = model.fit(
     verbose=1
 )
 train_time = time.time() - t0
-print(f"\n✓ Done in {train_time:.0f}s")
+print(f"\nDone in {train_time:.0f}s")
 
 
 # STEP 6: Evaluate
-print("\n📊 Evaluating...")
+print("\nEvaluating...")
 y_true, y_pred = [], []
 for text_batch, label_batch in test_ds:
     preds = model.predict(text_batch, verbose=0).argmax(axis=1)
@@ -106,7 +106,7 @@ for text_batch, label_batch in test_ds:
     y_true.extend(label_batch.numpy().tolist())
 
 print("\n" + "─" * 52)
-print("CLASSIFICATION REPORT  (GRU)")
+print("CLASSIFICATION REPORT  (SimpleRNN)")
 print("─" * 52)
 print(classification_report(y_true, y_pred, target_names=CLASS_NAMES, zero_division=0))
 print(f"Test accuracy : {accuracy_score(y_true, y_pred)*100:.2f}%")
@@ -124,7 +124,7 @@ def predict(sentence):
     print(f"  Scores: bear={probs[0]:.2f}  bull={probs[1]:.2f}  neu={probs[2]:.2f}\n")
 
 print("─" * 52)
-print("SAMPLE PREDICTIONS  (GRU)")
+print("SAMPLE PREDICTIONS  (SimpleRNN)")
 print("─" * 52)
 predict("Apple stock surges to all-time high on record earnings")
 predict("Markets crash as recession fears grip investors worldwide")
