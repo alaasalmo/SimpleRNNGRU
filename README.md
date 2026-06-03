@@ -20,6 +20,7 @@ Refrence: https://huggingface.co/datasets/zeroshot/twitter-financial-news-sentim
 <a href="gru_twitter_financial_kaggle_CIND860.py">gru_twitter_financial_kaggle_CIND860</a><b>Result:</b>
 
 <b>Result:</b>
+
 ```
 ```
 ## Sentiment Analysis For Financial News (kaggle)
@@ -31,12 +32,14 @@ Label: 0 = Positive 1 = Negative 2 = Neutral
 Refernce: https://www.kaggle.com/datasets/ankurzing/sentiment-analysis-for-financial-news https://www.kaggle.com/datasets/ankurzing/sentiment-analysis-for-financial-news 
 
 <a href="simple_rnn_kaggle_CIND860.py">simple_rnn_kaggle_CIND860</a>
+
 <b>Result:</b>
 
 ```
 ```
 
 <a href="gru_kaggle_CIND860.py">gru_kaggle_CIND860</a>
+
 <b>Result:</b>
 
 ```
