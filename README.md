@@ -118,22 +118,16 @@ weighted avg       0.66      0.67      0.67       970
 
 ```
 ────────────────────────────────────────────────────
-
-CLASSIFICATION REPORT GRU
-
+CLASSIFICATION REPORT  (GRU)
 ────────────────────────────────────────────────────
               precision    recall  f1-score   support
 
-    negative       0.41      0.47      0.44       105
+    negative       0.00      0.00      0.00       105
+     neutral       0.82      0.86      0.84       585
+    positive       0.53      0.66      0.58       280
 
-     neutral       0.78      0.76      0.77       585
-
-    positive       0.55      0.56      0.56       280
-
-    accuracy                           0.67       970
-
-   macro avg       0.58      0.60      0.59       970
-
-weighted avg       0.68      0.67      0.67       970
+    accuracy                           0.71       970
+   macro avg       0.45      0.51      0.47       970
+weighted avg       0.64      0.71      0.68       970
 
 ```

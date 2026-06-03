@@ -14,7 +14,6 @@ LABEL_MAP  = {"negative": 0, "neutral": 1, "positive": 2}
 
 
 # STEP 1: Read all-data.csv and split 80 / 20
-
 texts, labels = [], []
 with open(DATA_PATH, encoding="latin-1") as f:
     for row in csv.reader(f):
@@ -44,30 +43,9 @@ print(f"Total rows   : {len(texts)}")
 print(f"Training rows: {N_TRAIN}  |  Test rows: {N_TEST}")
 
 
-#STEP 2: make_dataset()
-# Builds a tf.data pipeline directly from Python lists —
-# no CSV files needed at this stage.
-
+# STEP 2: make_dataset()
 def make_dataset(text_list, label_list, shuffle=True):
     dataset = tf.data.Dataset.from_tensor_slices((text_list, label_list))
-
-    def prepare(features, label):
-        text = features["text"]  # raw sentence strings
-
-        # Map string labels → integers: negative=0  neutral=1  positive=2
-        label = tf.map_fn(
-            lambda x: tf.case(
-                [
-                    (tf.equal(x, "negative"), lambda: tf.constant(0)),
-                    (tf.equal(x, "neutral"),  lambda: tf.constant(1)),
-                ],
-                default=lambda: tf.constant(2)
-            ),
-            label,
-            fn_output_signature=tf.int32
-        )
-        return text, label
-
     if shuffle:
         dataset = dataset.shuffle(buffer_size=N_TRAIN)
     dataset = dataset.batch(BATCH_SIZE)
@@ -82,9 +60,6 @@ print("tf.data pipelines ready")
 
 
 # STEP 3: TextVectorization
-# Learns vocabulary from training text only,
-# then converts every sentence to a padded integer sequence.
-
 vectorizer = tf.keras.layers.TextVectorization(
     max_tokens=VOCAB_SIZE,
     output_mode="int",
@@ -94,7 +69,6 @@ vectorizer = tf.keras.layers.TextVectorization(
 vectorizer.adapt(train_texts)
 print(f"Vocabulary built: {len(vectorizer.get_vocabulary())} tokens")
 
-# Apply vectorizer inside the pipeline
 def vectorize(text, label):
     return vectorizer(text), label
 
@@ -102,17 +76,17 @@ train_ds = train_ds.map(vectorize)
 test_ds  = test_ds.map(vectorize)
 
 
-# STEP 4: Build the SimpleRNN model
+# STEP 4: Build the GRU model
 #
 #   Embedding  →  word ID → 32-number dense vector
-#   SimpleRNN  →  reads the sentence word by word, keeps memory
+#   GRU        →  reads the sentence word by word, keeps memory
 #   Dense      →  outputs probability for each of the 3 classes
 
 model = tf.keras.Sequential([
-    tf.keras.layers.Embedding(input_dim=VOCAB_SIZE, output_dim=32),
-    tf.keras.layers.SimpleRNN(32),
+    tf.keras.layers.Embedding(input_dim=VOCAB_SIZE, output_dim=32, input_length=MAX_LEN),
+    tf.keras.layers.GRU(32),
     tf.keras.layers.Dense(3, activation="softmax")
-])
+], name="GRU")
 
 model.compile(
     optimizer="adam",
@@ -124,7 +98,6 @@ model.summary()
 
 
 # STEP 5: Train
-
 print("\nTraining...")
 history = model.fit(
     train_ds,
@@ -137,7 +110,6 @@ history = model.fit(
 
 
 # STEP 6: Evaluate — Precision, Recall, F1, Support
-
 print("\nEvaluating...")
 
 y_true, y_pred = [], []
@@ -150,7 +122,7 @@ y_true = y_true[:N_TEST]
 y_pred = y_pred[:N_TEST]
 
 print("\n" + "─" * 52)
-print("CLASSIFICATION REPORT GRU")
+print("CLASSIFICATION REPORT  (GRU)")
 print("─" * 52)
 print(classification_report(
     y_true, y_pred,
@@ -160,7 +132,6 @@ print(classification_report(
 
 
 # STEP 7: Predict any sentence
-
 def predict(sentence):
     vec   = vectorizer([sentence])
     probs = model.predict(vec, verbose=0)[0]
