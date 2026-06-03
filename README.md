@@ -23,23 +23,15 @@ CLASSIFICATION REPORT  (SimpleRNN)
               precision    recall  f1-score   support
 
      bearish       0.00      0.00      0.00       347
-	 
-     bullish       0.40      0.46      0.43       475
-     
+     bullish       0.40      0.46      0.43       475  
 	 neutral       0.76      0.90      0.82      1566
-
     accuracy                           0.68      2388
-   
    macro avg       0.39      0.45      0.42      2388
-
 weighted avg       0.58      0.68      0.63      2388
 
 Test accuracy : 67.96%
-
 Best train acc: 82.26%
-
 Training time : 32s
-
 Parameters    : 394,435
 ```
 
@@ -49,30 +41,20 @@ Parameters    : 394,435
 
 ```
 ────────────────────────────────────────────────────
-
 CLASSIFICATION REPORT  (GRU)
-
 ────────────────────────────────────────────────────
               precision    recall  f1-score   support
 
      bearish       0.00      0.00      0.00       347
-
      bullish       0.00      0.00      0.00       475
-
      neutral       0.66      1.00      0.79      1566
-
     accuracy                           0.66      2388
-
    macro avg       0.22      0.33      0.26      2388
-
 weighted avg       0.43      0.66      0.52      2388
 
 Test accuracy : 65.58%
-
 Best train acc: 64.74%
-
 Training time : 75s
-
 Parameters    : 411,139
 
 ```
@@ -91,22 +73,15 @@ Refernce: https://www.kaggle.com/datasets/ankurzing/sentiment-analysis-for-finan
 ```
 
 ────────────────────────────────────────────────────
-
 CLASSIFICATION REPORT (SimpleRNN)
-
-────────────────────────────────────────────────────
+──────────────────────────────────────────────────
               precision    recall  f1-score   support
 
     negative       0.44      0.42      0.43       105
-
      neutral       0.75      0.78      0.77       585
-
     positive       0.56      0.53      0.54       280
-
     accuracy                           0.67       970
-
    macro avg       0.58      0.58      0.58       970
-
 weighted avg       0.66      0.67      0.67       970
 
 
