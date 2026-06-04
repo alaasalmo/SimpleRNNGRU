@@ -106,3 +106,54 @@ CLASSIFICATION REPORT  (GRU)
 weighted avg       0.64      0.71      0.68       970
 
 ```
+
+## Improved Sentiment Analysis For Financial News (kaggle)
+
+1- Adding Bidirectional: It's more expressive but it runs the sequence forward and backward, then concatenates both outputs, doubling the context the model sees for each word.
+
+2- Adding Dropout: Overfitting is a major issue on small financial sentiment datasets
+
+3- Add Class weight when we have unbalance result for the class. calculates weights inversely proportional to frequency
+
+###SimpleRNN
+
+<a href="simpleRNN_improved_CIN860.py">simpleRNN_improved_CIN860.py</a>
+
+<b>Result:</b>
+
+```
+
+────────────────────────────────────────────────────
+CLASSIFICATION REPORT  (SimpleRNN)
+────────────────────────────────────────────────────
+              precision    recall  f1-score   support
+
+    negative       0.35      0.43      0.38       105
+     neutral       0.74      0.75      0.75       585
+    positive       0.55      0.48      0.51       280
+
+    accuracy                           0.64       970
+   macro avg       0.54      0.55      0.55       970
+weighted avg       0.64      0.64      0.64       970
+
+```
+
+###GRU
+
+
+<b>Result:</b>
+
+```
+────────────────────────────────────────────────────
+CLASSIFICATION REPORT  (BiGRU)
+────────────────────────────────────────────────────
+              precision    recall  f1-score   support
+
+    negative       0.58      0.65      0.61       105
+     neutral       0.82      0.79      0.80       585
+    positive       0.65      0.66      0.65       280
+
+    accuracy                           0.74       970
+   macro avg       0.68      0.70      0.69       970
+weighted avg       0.74      0.74      0.74       970
+```
