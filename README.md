@@ -115,7 +115,7 @@ weighted avg       0.64      0.71      0.68       970
 
 3- Add Class weight when we have unbalance result for the class. calculates weights inversely proportional to frequency
 
-##SimpleRNN
+### SimpleRNN
 
 <a href="simpleRNN_improved_CIN860.py">simpleRNN_improved_CIN860.py</a>
 
@@ -138,7 +138,7 @@ weighted avg       0.65      0.63      0.64       970
 
 ```
 
-##GRU
+### GRU
 
 
 <b>Result:</b>
