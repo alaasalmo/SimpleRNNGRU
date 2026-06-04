@@ -115,7 +115,7 @@ weighted avg       0.64      0.71      0.68       970
 
 3- Add Class weight when we have unbalance result for the class. calculates weights inversely proportional to frequency
 
-###SimpleRNN
+##SimpleRNN
 
 <a href="simpleRNN_improved_CIN860.py">simpleRNN_improved_CIN860.py</a>
 
@@ -124,21 +124,21 @@ weighted avg       0.64      0.71      0.68       970
 ```
 
 ────────────────────────────────────────────────────
-CLASSIFICATION REPORT  (SimpleRNN)
+CLASSIFICATION REPORT  (BiRNN)
 ────────────────────────────────────────────────────
               precision    recall  f1-score   support
 
-    negative       0.35      0.43      0.38       105
-     neutral       0.74      0.75      0.75       585
-    positive       0.55      0.48      0.51       280
+    negative       0.29      0.43      0.34       105
+     neutral       0.78      0.75      0.77       585
+    positive       0.52      0.47      0.49       280
 
-    accuracy                           0.64       970
-   macro avg       0.54      0.55      0.55       970
-weighted avg       0.64      0.64      0.64       970
+    accuracy                           0.63       970
+   macro avg       0.53      0.55      0.53       970
+weighted avg       0.65      0.63      0.64       970
 
 ```
 
-###GRU
+##GRU
 
 
 <b>Result:</b>
