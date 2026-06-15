@@ -1,7 +1,9 @@
 import csv
 import random
+import numpy as np
 import tensorflow as tf
 from sklearn.metrics import classification_report
+from sklearn.utils.class_weight import compute_class_weight
 
 # CONFIG
 DATA_PATH  = "all-data.csv"
@@ -33,6 +35,7 @@ train_texts  = [texts[i]  for i in train_idx]
 train_labels = [labels[i] for i in train_idx]
 test_texts   = [texts[i]  for i in test_idx]
 test_labels  = [labels[i] for i in test_idx]
+
 
 N_TRAIN          = len(train_texts)
 N_TEST           = len(test_texts)
@@ -76,12 +79,22 @@ train_ds = train_ds.map(vectorize)
 test_ds  = test_ds.map(vectorize)
 
 
-# STEP 4: Build the SimpleRNN model
+# STEP 4: Build the Bidirectional SimpleRNN model
+#
+#   Embedding       →  word ID → 32-number dense vector
+#   Bidirectional   →  wraps SimpleRNN to run the sequence in BOTH directions:
+#                          forward  pass: "The stock → crashed → badly"
+#                          backward pass: "badly → crashed → The stock"
+#                      Both outputs are concatenated → 64 values instead of 32
+#   Dropout         →  randomly zeros 30% of values during training to reduce overfitting
+#   Dense           →  outputs probability for each of the 3 classes
+
 model = tf.keras.Sequential([
-    tf.keras.layers.Embedding(input_dim=VOCAB_SIZE, output_dim=32, input_length=MAX_LEN),  # FIXED
-    tf.keras.layers.SimpleRNN(32),
+    tf.keras.layers.Embedding(input_dim=VOCAB_SIZE, output_dim=32, input_length=MAX_LEN),
+    tf.keras.layers.Bidirectional(tf.keras.layers.SimpleRNN(32)),
+    tf.keras.layers.Dropout(0.3),
     tf.keras.layers.Dense(3, activation="softmax")
-])
+], name="BiRNN")
 
 model.compile(
     optimizer="adam",
@@ -92,19 +105,45 @@ model.compile(
 model.summary()
 
 
-# STEP 5: Train
+# STEP 5: Class weighting + Train
+#
+#   The dataset is imbalanced (e.g. neutral=60%, negative=11%).
+#   Without weighting, the model ignores rare classes to maximise accuracy.
+#   compute_class_weight("balanced") assigns weights inversely proportional
+#   to frequency, so a mistake on a rare class costs proportionally more:
+#
+#       weight = total_samples / (n_classes * class_count)
+#
+#   Example: negative appears 105 times out of 970 across 3 classes
+#       weight_negative = 970 / (3 * 105) ≈ 3.08   ← rare, high penalty
+#       weight_neutral  = 970 / (3 * 585) ≈ 0.55   ← common, low penalty
+#       weight_positive = 970 / (3 * 280) ≈ 1.15   ← medium
+
+weights = compute_class_weight(
+    class_weight="balanced",
+    classes=np.array([0, 1, 2]),
+    y=train_labels
+)
+class_weight = {0: weights[0], 1: weights[1], 2: weights[2]}
+
+print(f"\nClass weights:")
+print(f"  negative = {weights[0]:.2f}")
+print(f"  neutral  = {weights[1]:.2f}")
+print(f"  positive = {weights[2]:.2f}")
 print("\nTraining...")
+
 history = model.fit(
     train_ds,
     steps_per_epoch=STEPS_PER_EPOCH,
     epochs=EPOCHS,
     validation_data=test_ds,
     validation_steps=VALIDATION_STEPS,
+    class_weight=class_weight,
     verbose=1
 )
 
 
-# STEP 6: Evaluate
+# STEP 6: Evaluate — Precision, Recall, F1, Support
 print("\nEvaluating...")
 
 y_true, y_pred = [], []
@@ -117,7 +156,7 @@ y_true = y_true[:N_TEST]
 y_pred = y_pred[:N_TEST]
 
 print("\n" + "─" * 52)
-print("CLASSIFICATION REPORT SimpleRNN")
+print("CLASSIFICATION REPORT  (BiRNN)")
 print("─" * 52)
 print(classification_report(
     y_true, y_pred,

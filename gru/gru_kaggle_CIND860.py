@@ -2,6 +2,7 @@ import csv
 import random
 import tensorflow as tf
 from sklearn.metrics import classification_report
+from collections import Counter
 
 # CONFIG
 DATA_PATH  = "all-data.csv"
@@ -42,6 +43,8 @@ VALIDATION_STEPS = N_TEST  // BATCH_SIZE + 1
 print(f"Total rows   : {len(texts)}")
 print(f"Training rows: {N_TRAIN}  |  Test rows: {N_TEST}")
 
+train_counts = Counter(train_labels)
+test_counts = Counter(test_labels)
 
 # STEP 2: make_dataset()
 def make_dataset(text_list, label_list, shuffle=True):
@@ -130,6 +133,15 @@ print(classification_report(
     zero_division=0
 ))
 
+
+print("\nTraining Set Distribution")
+print("Negative:", train_counts[0])
+print("Neutral :", train_counts[1])
+print("Positive:", train_counts[2])
+print("\nTest Set Distribution")
+print("Negative:", test_counts[0])
+print("Neutral :", test_counts[1])
+print("Positive:", test_counts[2])
 
 # STEP 7: Predict any sentence
 def predict(sentence):

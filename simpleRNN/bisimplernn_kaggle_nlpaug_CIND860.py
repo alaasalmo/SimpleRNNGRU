@@ -2,8 +2,16 @@ import csv
 import random
 import numpy as np
 import tensorflow as tf
+import nlpaug.augmenter.word as naw
+import nlpaug.augmenter.char as nac
 from sklearn.metrics import classification_report
 from sklearn.utils.class_weight import compute_class_weight
+import nltk
+
+nltk.download('averaged_perceptron_tagger_eng')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
 
 # CONFIG
 DATA_PATH  = "all-data.csv"
@@ -36,14 +44,64 @@ train_labels = [labels[i] for i in train_idx]
 test_texts   = [texts[i]  for i in test_idx]
 test_labels  = [labels[i] for i in test_idx]
 
+print(f"Total rows              : {len(texts)}")
+print(f"Training rows (before aug): {len(train_texts)}  |  Test rows: {len(test_texts)}")
+
+
+# STEP 1b: Augmentation with nlpaug
+#
+#   Three augmenters are applied randomly to every training sentence:
+#
+#   SynonymAug      →  swaps words with synonyms
+#                      "profits rose"  → "earnings rose"
+#
+#   RandomWordAug   →  deletes random words
+#   (delete)           "profits rose sharply" → "profits sharply"
+#
+#   RandomWordAug   →  swaps word positions
+#   (swap)             "profits rose sharply" → "rose profits sharply"
+#
+#   KeyboardAug     →  injects realistic typos
+#                      "profits" → "profkts"
+#
+#   The TEST SET is never touched — we always evaluate on real data.
+
+print("\nLoading augmenters...")
+
+augmenters = [
+    naw.SynonymAug(),                    # swap synonyms
+    naw.RandomWordAug(action="delete"),  # delete random words
+    naw.RandomWordAug(action="swap"),    # swap word positions
+    nac.KeyboardAug(),                   # inject typos
+]
+
+print("Augmenting training data...")
+
+aug_texts, aug_labels = [], []
+
+for text, label in zip(train_texts, train_labels):
+    aug      = random.choice(augmenters)  # pick a random technique
+    new_text = aug.augment(text)[0]       # apply it
+    aug_texts.append(new_text)
+    aug_labels.append(label)              # label NEVER changes!
+
+# Combine original + augmented
+train_texts  = train_texts  + aug_texts
+train_labels = train_labels + aug_labels
+
+# Shuffle so originals and augmented are interleaved
+combined = list(zip(train_texts, train_labels))
+random.shuffle(combined)
+train_texts, train_labels = zip(*combined)
+train_texts  = list(train_texts)
+train_labels = list(train_labels)
+
 N_TRAIN          = len(train_texts)
 N_TEST           = len(test_texts)
 STEPS_PER_EPOCH  = N_TRAIN // BATCH_SIZE
 VALIDATION_STEPS = N_TEST  // BATCH_SIZE + 1
 
-print(f"Total rows   : {len(texts)}")
-print(f"Training rows: {N_TRAIN}  |  Test rows: {N_TEST}")
-
+print(f"Training rows (after aug) : {N_TRAIN}  (doubled!)")
 
 # STEP 2: make_dataset()
 def make_dataset(text_list, label_list, shuffle=True):
@@ -155,7 +213,7 @@ y_true = y_true[:N_TEST]
 y_pred = y_pred[:N_TEST]
 
 print("\n" + "─" * 52)
-print("CLASSIFICATION REPORT  (BiRNN)")
+print("CLASSIFICATION REPORT  (BiRNN + nlpaug)")
 print("─" * 52)
 print(classification_report(
     y_true, y_pred,

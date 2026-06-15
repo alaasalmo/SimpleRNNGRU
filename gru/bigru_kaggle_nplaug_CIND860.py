@@ -1,0 +1,228 @@
+import csv
+import random
+import numpy as np
+import tensorflow as tf
+import nltk
+import nlpaug.augmenter.word as naw
+import nlpaug.augmenter.char as nac
+from sklearn.metrics import classification_report
+from sklearn.utils.class_weight import compute_class_weight
+
+# ── Download NLTK resources required by nlpaug (runs once) ───────────
+nltk.download('averaged_perceptron_tagger_eng', quiet=True)
+nltk.download('averaged_perceptron_tagger',     quiet=True)
+nltk.download('wordnet',                        quiet=True)
+nltk.download('omw-1.4',                        quiet=True)
+
+# CONFIG
+DATA_PATH  = "all-data.csv"
+BATCH_SIZE = 64
+VOCAB_SIZE = 5000
+MAX_LEN    = 50
+EPOCHS     = 10
+
+LABEL_MAP  = {"negative": 0, "neutral": 1, "positive": 2}
+
+
+# STEP 1: Read all-data.csv and split 80 / 20
+texts, labels = [], []
+with open(DATA_PATH, encoding="latin-1") as f:
+    for row in csv.reader(f):
+        if len(row) >= 2:
+            labels.append(LABEL_MAP.get(row[0].strip(), 1))
+            texts.append(row[1].strip())
+
+random.seed(42)
+indices = list(range(len(texts)))
+random.shuffle(indices)
+
+split        = int(len(indices) * 0.8)
+train_idx    = indices[:split]
+test_idx     = indices[split:]
+
+train_texts  = [texts[i]  for i in train_idx]
+train_labels = [labels[i] for i in train_idx]
+test_texts   = [texts[i]  for i in test_idx]
+test_labels  = [labels[i] for i in test_idx]
+
+print(f"Total rows              : {len(texts)}")
+print(f"Training rows (before aug): {len(train_texts)}  |  Test rows: {len(test_texts)}")
+
+
+# STEP 1b: Augmentation with nlpaug
+#
+#   Four augmenters are applied randomly to every training sentence:
+#
+#   SynonymAug          →  swaps words with synonyms
+#                          "profits rose"  → "earnings rose"
+#
+#   RandomWordAug       →  deletes random words
+#   (delete)               "profits rose sharply" → "profits sharply"
+#
+#   RandomWordAug       →  swaps word positions
+#   (swap)                 "profits rose sharply" → "rose profits sharply"
+#
+#   KeyboardAug         →  injects realistic typos
+#                          "profits" → "profkts"
+#
+#   The TEST SET is never touched — we always evaluate on real data.
+
+print("\nLoading augmenters...")
+augmenters = [
+    naw.SynonymAug(),                    # swap words with synonyms
+    naw.RandomWordAug(action="delete"),  # delete random words
+    naw.RandomWordAug(action="swap"),    # swap word positions
+    nac.KeyboardAug(),                   # inject keyboard typos
+]
+
+print("Augmenting training data (this may take a moment)...")
+aug_texts, aug_labels = [], []
+
+for text, label in zip(train_texts, train_labels):
+    aug      = random.choice(augmenters)  # pick a random technique
+    new_text = aug.augment(text)[0]       # apply it
+    aug_texts.append(new_text)
+    aug_labels.append(label)              # label NEVER changes!
+
+# Combine original + augmented
+train_texts  = train_texts  + aug_texts
+train_labels = train_labels + aug_labels
+
+# Shuffle so originals and augmented are interleaved
+combined = list(zip(train_texts, train_labels))
+random.shuffle(combined)
+train_texts, train_labels = zip(*combined)
+train_texts  = list(train_texts)
+train_labels = list(train_labels)
+
+N_TRAIN          = len(train_texts)
+N_TEST           = len(test_texts)
+STEPS_PER_EPOCH  = N_TRAIN // BATCH_SIZE
+VALIDATION_STEPS = N_TEST  // BATCH_SIZE + 1
+
+print(f"Training rows (after aug) : {N_TRAIN}  (doubled!)")
+
+
+# STEP 2: make_dataset()
+def make_dataset(text_list, label_list, shuffle=True):
+    dataset = tf.data.Dataset.from_tensor_slices((text_list, label_list))
+    if shuffle:
+        dataset = dataset.shuffle(buffer_size=N_TRAIN)
+    dataset = dataset.batch(BATCH_SIZE)
+    dataset = dataset.repeat()
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
+    return dataset
+
+train_ds = make_dataset(train_texts, train_labels, shuffle=True)
+test_ds  = make_dataset(test_texts,  test_labels,  shuffle=False)
+
+print("tf.data pipelines ready")
+
+
+# STEP 3: TextVectorization
+vectorizer = tf.keras.layers.TextVectorization(
+    max_tokens=VOCAB_SIZE,
+    output_mode="int",
+    output_sequence_length=MAX_LEN
+)
+
+vectorizer.adapt(train_texts)
+print(f"Vocabulary built: {len(vectorizer.get_vocabulary())} tokens")
+
+def vectorize(text, label):
+    return vectorizer(text), label
+
+train_ds = train_ds.map(vectorize)
+test_ds  = test_ds.map(vectorize)
+
+
+# STEP 4: Build the Bidirectional GRU model
+#
+#   Embedding     →  word ID → 32-number dense vector
+#   Bidirectional →  wraps GRU to read the sentence left→right AND right→left
+#                    outputs are concatenated, giving 64 values total
+#   Dropout       →  randomly zeros 30% of outputs during training
+#                    forces the model to not rely on any single feature (reduces overfitting)
+#   Dense         →  outputs probability for each of the 3 classes
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Embedding(input_dim=VOCAB_SIZE, output_dim=32, input_length=MAX_LEN),
+    tf.keras.layers.Bidirectional(tf.keras.layers.GRU(32, recurrent_dropout=0.2)),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dense(3, activation="softmax")
+], name="BiGRU")
+
+model.compile(
+    optimizer="adam",
+    loss="sparse_categorical_crossentropy",
+    metrics=["accuracy"]
+)
+
+model.summary()
+
+
+# STEP 5: Class weighting + Train
+#
+#   Financial sentiment datasets are heavily skewed toward "neutral".
+#   Class weighting penalizes misclassifying minority classes (negative/positive)
+#   more strongly, so the model doesn't just learn to predict "neutral" for everything.
+
+weights = compute_class_weight(
+    class_weight="balanced",
+    classes=np.array([0, 1, 2]),
+    y=train_labels
+)
+class_weight = {0: weights[0], 1: weights[1], 2: weights[2]}
+
+print(f"\nClass weights: negative={weights[0]:.2f}, neutral={weights[1]:.2f}, positive={weights[2]:.2f}")
+print("\nTraining...")
+
+history = model.fit(
+    train_ds,
+    steps_per_epoch=STEPS_PER_EPOCH,
+    epochs=EPOCHS,
+    validation_data=test_ds,
+    validation_steps=VALIDATION_STEPS,
+    class_weight=class_weight,
+    verbose=1
+)
+
+
+# STEP 6: Evaluate — Precision, Recall, F1, Support
+print("\nEvaluating...")
+
+y_true, y_pred = [], []
+for text_batch, label_batch in test_ds.take(VALIDATION_STEPS):
+    preds = model.predict(text_batch, verbose=0).argmax(axis=1)
+    y_pred.extend(preds.tolist())
+    y_true.extend(label_batch.numpy().tolist())
+
+y_true = y_true[:N_TEST]
+y_pred = y_pred[:N_TEST]
+
+print("\n" + "─" * 52)
+print("CLASSIFICATION REPORT  (BiGRU + nlpaug)")
+print("─" * 52)
+print(classification_report(
+    y_true, y_pred,
+    target_names=["negative", "neutral", "positive"],
+    zero_division=0
+))
+
+
+# STEP 7: Predict any sentence
+def predict(sentence):
+    vec   = vectorizer([sentence])
+    probs = model.predict(vec, verbose=0)[0]
+    idx   = probs.argmax()
+    label = ["negative", "neutral", "positive"][idx]
+    conf  = probs[idx] * 100
+    print(f"  Text  : {sentence[:70]}")
+    print(f"  Result: {label.upper()}  ({conf:.0f}% confident)\n")
+
+print("─" * 52)
+print("SAMPLE PREDICTIONS")
+print("─" * 52)
+predict("The company reported record profits and strong revenue growth")
+predict("Massive layoffs announced as sales decline sharply")
+predict("The firm maintained normal operations this quarter")
