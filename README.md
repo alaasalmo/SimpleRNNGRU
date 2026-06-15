@@ -98,7 +98,7 @@ Label: 0 = Positive 1 = Negative 2 = Neutral
 
 Refernce: https://www.kaggle.com/datasets/ankurzing/sentiment-analysis-for-financial-news 
 
-<a href="simplernn/simple_rnn_kaggle_CIND860.py">implernn_kaggle_CIND860.py</a>
+<a href="simplernn/simplernn_kaggle_CIND860.py">simplernn_kaggle_CIND860.py</a>
 
 <b>Result:</b>
 
@@ -163,7 +163,7 @@ Class weights:
   positive = 1.19
 ```
 
-<a href="simplernn/bisimple_rnn_kaggle_nlpaug_CIND860.py">bisimple_rnn_kaggle_nlpaug_CIND860.py</a>
+<a href="simplernn/bisimplernn_kaggle_nlpaug_CIND860.py">bisimple_rnn_kaggle_nlpaug_CIND860.py</a>
 
 <b>Result:</b>
 
