@@ -186,7 +186,7 @@ weighted avg       0.69      0.68      0.68       970
 
 ## Twitter Financial News (Hagging face) 
 
-<a href="simplernn/gru_twitter_financial_CIND860.py">gru_twitter_financial_CIND860.py</a>
+<a href="gru/gru_twitter_financial_CIND860.py">gru_twitter_financial_CIND860.py</a>
 
 <b>Result:</b>
 
@@ -248,7 +248,7 @@ weighted avg       0.79      0.79      0.79      2388
 Class weights: Bearish=2.21, Bullish=1.65, Neutral=0.51
 ```
 
-<a href="simplernn/bigru_twitter_financial_nlpaug_CIND860.py">bigru_twitter_financial_nlpaug_CIND860.py</a>
+<a href="gru/bigru_twitter_financial_nlpaug_CIND860.py">bigru_twitter_financial_nlpaug_CIND860.py</a>
 
 <b>Result:</b>
 
@@ -271,7 +271,7 @@ weighted avg       0.79      0.79      0.79      2388
 Class weights: Bearish=2.21, Bullish=1.65, Neutral=0.51
 ```
 
-<a href="simplernn/bigru_twitter_financial_nlpaug_CIND860.py">bigru_twitter_financial_nlpaug_CIND860.py</a>
+<a href="gru/bigru_twitter_financial_nlpaug_CIND860.py">bigru_twitter_financial_nlpaug_CIND860.py</a>
 
 <b>Result:</b>
 
@@ -292,7 +292,7 @@ weighted avg       0.66      0.72      0.69       970
 
 ## Sentiment Analysis For Financial News (kaggle)
 
-<a href="simplernn/gru_kaggle_CIND860.py">gru_kaggle_CIND860.py</a>
+<a href="gru/gru_kaggle_CIND860.py">gru_kaggle_CIND860.py</a>
 
 <b>Result:</b>
 
@@ -333,7 +333,7 @@ Positive: 280
 
 3- Add Class weight when we have unbalance result for the class. calculates weights inversely proportional to frequency
 
-<a href="simplernn/bigru_kaggle_CIND860.py">bigru_kaggle_CIND860.py</a>
+<a href="gru/bigru_kaggle_CIND860.py">bigru_kaggle_CIND860.py</a>
 
 <b>Result:</b>
 
