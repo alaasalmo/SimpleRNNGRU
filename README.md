@@ -1,5 +1,13 @@
 # SimpleRNNGRU
 
+The plan is to implement SimpleRNN and GRU in two streams
+
+<b>First stream</b>: we implement simpleRNN with Twitter finance dataset and Kaggle dataset
+<img src="img/CIN860-diagram-1.jpg">
+
+<b>Second stream</b>: we implement GRU with Twitter finance dataset and Kaggle dataset
+<img src="img/CIN860-diagram-2.jpg">
+
 ## Twitter Financial News (Hagging face) 
 
 The dataset contains finance-related tweets and news-style short texts labeled by sentiment.
@@ -10,6 +18,7 @@ Label: 0 = bearish 1 = bullish 2 = neutral
 
 Refrence: https://huggingface.co/datasets/zeroshot/twitter-financial-news-sentiment?utm_source=chatgpt.com
 
+<span style="color:red"><b>1. SimpleRNN Twitter financial (basic)</b></span>
 <a href="simplernn/simplernn_twitter_financial_CIND860.py">simplernn_twitter_financial_CIND860.py</a>
 
 <b>Result:</b>
@@ -41,7 +50,8 @@ Bullish : 475
 Neutral: 1566
 ```
 
-## Improved Sentiment Analysis For Financial News (Twitter)
+<span style="color:red"><b>2. SimpleRNN Twitter financial (Bi-SimpleRNN,Dropout and Class weight)</b></span>
+#### Improved Sentiment Analysis For Financial News (Twitter)
 
 1- Adding Bidirectional: It's more expressive but it runs the sequence forward and backward, then concatenates both outputs, doubling the context the model sees for each word.
 
@@ -73,6 +83,7 @@ weighted avg       0.77      0.78      0.77      2388
 Class weights: bearish=2.21, bullsh=1.65, neutral=0.51
 ```
 
+<span style="color:red"><b>3. SimpleRNN Twitter financial (Bi-SimpleRNN,Dropout and Class weight + Augmentation)</b></span>
 <a href="simplernn/bisimplernn_twitter_financial_nlpaug_CIND860.py">bisimplernn_twitter_financial_nlpaug_CIND860.py</a>
 
 ```
@@ -97,6 +108,8 @@ The Dataset contains Financial PhraseBank dataset created by Malo et al. and con
 Label: 0 = Positive 1 = Negative 2 = Neutral
 
 Refernce: https://www.kaggle.com/datasets/ankurzing/sentiment-analysis-for-financial-news 
+
+<span style="color:red"><b>4. SimpleRNN Kaggle financial (Basic)</b></span>
 
 <a href="simplernn/simplernn_kaggle_CIND860.py">simplernn_kaggle_CIND860.py</a>
 
@@ -128,6 +141,8 @@ Negative: 105
 Neutral : 585
 Positive: 280
 ```
+
+<span style="color:red"><b>5. SimpleRNN Kaggle financial (Bi-SimpleRNN,Dropout and Class weight)</b></span>
 
 ## Improved Sentiment Analysis For Financial News (kaggle)
 
@@ -162,7 +177,7 @@ Class weights:
   neutral  = 0.56
   positive = 1.19
 ```
-
+<span style="color:red"><b>6. SimpleRNN Kaggle financial (Bi-SimpleRNN,Dropout and Class weight + Augmentation)</b></span>
 <a href="simplernn/bisimplernn_kaggle_nlpaug_CIND860.py">bisimple_rnn_kaggle_nlpaug_CIND860.py</a>
 
 <b>Result:</b>
@@ -185,6 +200,8 @@ weighted avg       0.69      0.68      0.68       970
 ### GRU
 
 ## Twitter Financial News (Hagging face) 
+
+<span style="color:red"><b>1. GRU Twitter financial (basic)</b></span>
 
 <a href="gru/gru_twitter_financial_CIND860.py">gru_twitter_financial_CIND860.py</a>
 
@@ -216,6 +233,7 @@ Bearish: 347
 Bullish : 475
 Neutral: 1566
 ```
+<span style="color:red"><b>2. GRU Twitter financial (Bi-GRU,Dropout and Class weight)</b></span>
 
 ## Improved Sentiment Analysis For Financial News (Twitter)
 
@@ -248,6 +266,8 @@ weighted avg       0.79      0.79      0.79      2388
 Class weights: Bearish=2.21, Bullish=1.65, Neutral=0.51
 ```
 
+<span style="color:red"><b>3. GRU Twitter financial (Bi-GRU,Dropout and Class weight + Augmentation)</b></span>
+
 <a href="gru/bigru_twitter_financial_nlpaug_CIND860.py">bigru_twitter_financial_nlpaug_CIND860.py</a>
 
 <b>Result:</b>
@@ -271,25 +291,7 @@ weighted avg       0.79      0.79      0.79      2388
 Class weights: Bearish=2.21, Bullish=1.65, Neutral=0.51
 ```
 
-<a href="gru/bigru_twitter_financial_nlpaug_CIND860.py">bigru_twitter_financial_nlpaug_CIND860.py</a>
-
-<b>Result:</b>
-
-```
-────────────────────────────────────────────────────
-CLASSIFICATION REPORT  (GRU)
-────────────────────────────────────────────────────
-              precision    recall  f1-score   support
-
-    negative       0.00      0.00      0.00       105
-     neutral       0.84      0.85      0.85       585
-    positive       0.53      0.71      0.61       280
-
-    accuracy                           0.72       970
-   macro avg       0.46      0.52      0.49       970
-weighted avg       0.66      0.72      0.69       970
-```
-
+<span style="color:red"><b>4. GRU Kaggle financial (basic)</b></span>
 ## Sentiment Analysis For Financial News (kaggle)
 
 <a href="gru/gru_kaggle_CIND860.py">gru_kaggle_CIND860.py</a>
@@ -325,6 +327,8 @@ Neutral : 585
 Positive: 280
 ```
 
+<span style="color:red"><b>5. GRU Kaggle financial (Bi-GRU,Dropout and Class weight)</b></span>
+
 ## Improved Sentiment Analysis For Financial News (Kaggle)
 
 1- Adding Bidirectional: It's more expressive but it runs the sequence forward and backward, then concatenates both outputs, doubling the context the model sees for each word.
@@ -357,6 +361,8 @@ weighted avg       0.74      0.74      0.74       970
 ```
 Class weights: negative=2.59, neutral=0.56, positive=1.19
 ```
+
+<span style="color:red"><b>6. GRU Twitter financial (Bi-GRU,Dropout and Class weight + Augmentation)</b></span>
 
 <a href="gru/bigru_kaggle_nplaug_CIND860.py">bigru_kaggle_nplaug_CIND860.py</a>
 
