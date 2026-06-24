@@ -1,6 +1,6 @@
 # SimpleRNNGRU
 
-The plan is to implement SimpleRNN and GRU in two streams
+The plan is to implement SimpleRNN and GRU in two streams. We use each stream with Twitter Financial News dataset and Kaggle dataset
 
 <b>First stream</b>: we implement simpleRNN with Twitter finance dataset and Kaggle dataset
 <img src="img/CIN860-diagram-1.jpg">
