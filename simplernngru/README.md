@@ -13,6 +13,9 @@ The first phase focuses on developing and improving the sentiment analysis model
 
 <b>2- Choose the improved models and build them in container</b>
 
+<a href="docker">Docker</a>
+
 <b>3- Choose the containers with Kubernetes and scale up the models</b>
 
 <b>Result and conclusion</b>
+
