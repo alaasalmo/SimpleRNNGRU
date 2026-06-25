@@ -79,7 +79,7 @@ EXPOSE 12345
 # --model-type, --input, --output, --start-delay are passed at `docker run` time
 ENTRYPOINT ["python", "birnn_bigru_kaggle_multiworker.py"]
 ```
-
+<a href="Dockerfile.kaggle">Dockerfile.kaggle</a>
 
 <b>2- Dockerfile for Twitter financial news (SimpleRNN and GRU)</b> 
 
@@ -104,6 +104,44 @@ This is to keep the setting configuration for the cluster
 -Input volume point to input folder
 
 -output volume point to output folder
+
+```
+# =============================================================================
+#  Dataset : zeroshot/twitter-financial-news-sentiment (HuggingFace)
+#  Base    : python:3.11-slim
+#
+#  MODEL_TYPE is chosen at *runtime* via --model-type 1|2, not baked into
+#  the image, so the same image serves both BiSimpleRNN and BiGRU workers.
+#
+#  Volumes:
+#    /data/input   (ro)  → HuggingFace dataset cache (HF_HOME)
+#    /data/output  (rw)  → train.log, classification_report.txt,
+#                          sample_predictions.txt, checkpoints/, tensorboard/
+# =============================================================================
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        git \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+COPY birnn_bigru_twitter_multiworker.py .
+
+VOLUME ["/data/input", "/data/output"]
+EXPOSE 12345
+
+# --model-type, --input, --output, --start-delay are passed at `docker run` time
+ENTRYPOINT ["python", "birnn_bigru_twitter_multiworker.py"]
+```
+
+<a href="Dockerfile.twitter">Dockerfile.twitter</a>
 
 ## Build the image with Docker file
 
