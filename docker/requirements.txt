@@ -1,0 +1,8 @@
+# TensorFlow CPU build
+tensorflow-cpu==2.15.0
+
+# Metrics
+scikit-learn==1.4.2
+
+# Pin numpy to a version compatible with TF 2.15
+numpy==1.26.4
