@@ -13,7 +13,7 @@ from sklearn.utils.class_weight import compute_class_weight
 MODEL_TYPE = 1   # <-- change this to 1 or 2
 
 # CONFIG
-DATA_PATH  = "all-data.csv"
+DATA_PATH  = "/data/input/all-data.csv"
 BATCH_SIZE = 64
 VOCAB_SIZE = 5000
 MAX_LEN    = 50
