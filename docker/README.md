@@ -1,2 +1,3 @@
-### Simple RNN & GRU model container base
+### Simple RNN & GRU model container base (Docker)
 
+<center><img src="img/docker-container.png"></center>
