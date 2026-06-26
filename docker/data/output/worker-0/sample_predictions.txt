@@ -1,0 +1,22 @@
+SAMPLE PREDICTIONS  (BiSimpleRNN)
+────────────────────────────────────────────────────
+  Text  : Apple stock surges to all-time high on record earnings
+  Result: BULLISH  (100% confident)
+  Scores: bear=0.00  bull=1.00  neu=0.00
+
+  Text  : Markets crash as recession fears grip investors worldwide
+  Result: BEARISH  (100% confident)
+  Scores: bear=1.00  bull=0.00  neu=0.00
+
+  Text  : Fed holds rates steady as inflation remains uncertain
+  Result: NEUTRAL  (91% confident)
+  Scores: bear=0.07  bull=0.03  neu=0.91
+
+  Text  : Tesla shares drop 15% after missing delivery targets badly
+  Result: BEARISH  (100% confident)
+  Scores: bear=1.00  bull=0.00  neu=0.00
+
+  Text  : Goldman Sachs upgrades sector outlook citing strong growth
+  Result: BEARISH  (67% confident)
+  Scores: bear=0.67  bull=0.32  neu=0.01
+

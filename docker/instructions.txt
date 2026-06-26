@@ -1,0 +1,68 @@
+# worker-0 first — no delay
+docker run -d --name bitsimplernn-worker-0 --hostname bitsimplernn-worker-0 --network tf_net --expose 12345 --env-file "C:\alaa\tmu\project\finanace-example\docker\bitsimplernn-worker-0.env" -v "/c/alaa/tmu/project/finanace-example/docker/data/input:/data/input:ro" -v "/c/alaa/tmu/project/finanace-example/docker/data/output/worker-0:/data/output" bitsimplernn:latest --input /data/input --output /data/output
+
+
+# worker-1 second — wait 15s for chief to be ready
+docker run -d --name bitsimplernn-worker-1 --hostname bitsimplernn-worker-1 --network tf_net --expose 12345 --env-file "C:\alaa\tmu\project\finanace-example\docker\bitsimplernn-worker-1.env" -v "/c/alaa/tmu/project/finanace-example/docker/data/input:/data/input:ro" -v "/c/alaa/tmu/project/finanace-example/docker/data/output/worker-1:/data/output" bitsimplernn:latest --input /data/input --output /data/output --start-delay 15
+
+Input paramter: bitsimplernn-worker-(1|2|3 ...).env
+This is to keep the setting configuration for the cluster
+Input volume point to input folder
+output volume point to output folder
+
+
+
+https://github.com/alaasalmo/SimpleRNNGRU
+
+
+
+mkdir -p data/input data/output/worker-0 data/output/worker-1 data/output/worker-2
+docker network create --driver bridge tf_net
+
+docker build -f Dockerfile.twitter -t birnngru-twitter:latest .
+docker build -f Dockerfile.kaggle -t birnngru-kaggle:latest .
+
+
+
+# place all-data.csv into data/input/ before running
+
+docker run -d --name bitsimplernn-worker-0 --hostname bitsimplernn-worker-0 \
+  --network tf_net --expose 12345 --env-file bitsimplernn-worker-0.env \
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" \
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-0:/data/output" \
+  birnngru-twitter:latest --input /c/alaa/github/SimpleRNNGRU/docker/data/input \
+  --output //c/alaa/github/SimpleRNNGRU/docker/data/output --model-type 1
+
+docker run -d --name bitsimplernn-worker-1 --hostname bitsimplernn-worker-1 \
+  --network tf_net --expose 12345 --env-file bitsimplernn-worker-1.env \
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" \
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-1:/data/output" \
+  birnngru-twitter:latest --input //c/alaa/github/SimpleRNNGRU/docker/data/input --output //c/alaa/github/SimpleRNNGRU/docker/data/output --model-type 1 --start-delay 10
+
+docker run -d --name bitsimplernn-worker-2 --hostname bitsimplernn-worker-2 \
+  --network tf_net --expose 12345 --env-file bitsimplernn-worker-2.env \
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" \
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-2:/data/output" \
+  birnngru-twitter:latest --input /c/alaa/github/SimpleRNNGRU/docker/data/input \
+  --output //c/alaa/github/SimpleRNNGRU/docker/data/output --model-type 1 --start-delay 15
+  
+  
+  
+  
+docker run -d --name bitsimplernn-worker-0 --hostname bitsimplernn-worker-0 `
+  --network tf_net --expose 12345 --env-file bitsimplernn-worker-0.env `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-0:/data/output" `
+  birnngru-twitter:latest --input /data/input --output /data/output --model-type 1
+
+docker run -d --name bitsimplernn-worker-1 --hostname bitsimplernn-worker-1 `
+  --network tf_net --expose 12345 --env-file bitsimplernn-worker-1.env `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-1:/data/output" `
+  birnngru-twitter:latest --input /data/input --output /data/output --model-type 1 --start-delay 10
+
+docker run -d --name bitsimplernn-worker-2 --hostname bitsimplernn-worker-2 `
+  --network tf_net --expose 12345 --env-file bitsimplernn-worker-2.env `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-2:/data/output" `
+  birnngru-twitter:latest --input /data/input --output /data/output --model-type 1 --start-delay 15

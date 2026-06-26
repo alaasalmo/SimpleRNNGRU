@@ -48,15 +48,6 @@ File requirements for Dockerfile.kaggle
 
 
 ```
-# =============================================================================
-#  MODEL_TYPE is chosen at *runtime* via --model-type 1|2, not baked into
-#  the image, so the same image serves both BiRNN and BiGRU workers.
-#
-#  Volumes:
-#    /data/input   (ro)  → must contain all-data.csv
-#    /data/output  (rw)  → train.log, classification_report.txt,
-#                          sample_predictions.txt, checkpoints/, tensorboard/
-# =============================================================================
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -67,7 +58,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY requirements.kaggle requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
@@ -106,18 +97,6 @@ This is to keep the setting configuration for the cluster
 -output volume point to output folder
 
 ```
-# =============================================================================
-#  Dockerfile.kaggle — BiRNN / BiGRU Multi-Worker Training (Kaggle CSV dataset)
-#  Base : python:3.11-slim
-#
-#  MODEL_TYPE is chosen at *runtime* via --model-type 1|2, not baked into
-#  the image, so the same image serves both BiRNN and BiGRU workers.
-#
-#  Volumes:
-#    /data/input   (ro)  → must contain all-data.csv
-#    /data/output  (rw)  → train.log, classification_report.txt,
-#                          sample_predictions.txt, checkpoints/, tensorboard/
-# =============================================================================
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -128,7 +107,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.kaggle.txt requirements.txt
+COPY requirements.kaggle requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
@@ -163,3 +142,27 @@ docker build -f Dockerfile.twitter -t birnngru-twitter:latest .
 docker images
 ```
 <img src="img/list-mages.jpg">
+
+## Run in the local docker for twitter-financial-news-sentiment 
+
+We run the docker commands at Powershell. We need to run with three workers (worker-0, worker-1 and worker-2). the worker-0 is chief-worker. The chief-worker is the master of worker. I responsible for filtering and prepare data. After to train the model, the three workers will train models.  
+
+```
+docker run -d --name bitsimplernn-worker-0 --hostname bitsimplernn-worker-0 `
+  --network tf_net --expose 12345 --env-file bitsimplernn-worker-0.env `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-0:/data/output" `
+  birnngru-twitter:latest --input /data/input --output /data/output --model-type 1
+
+docker run -d --name bitsimplernn-worker-1 --hostname bitsimplernn-worker-1 `
+  --network tf_net --expose 12345 --env-file bitsimplernn-worker-1.env `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-1:/data/output" `
+  birnngru-twitter:latest --input /data/input --output /data/output --model-type 1 --start-delay 10
+
+docker run -d --name bitsimplernn-worker-2 --hostname bitsimplernn-worker-2 `
+  --network tf_net --expose 12345 --env-file bitsimplernn-worker-2.env `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" `
+  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-2:/data/output" `
+  birnngru-twitter:latest --input /data/input --output /data/output --model-type 1 --start-delay 15
+```

@@ -1,0 +1,31 @@
+====================================================
+BiSimpleRNN  |  worker-1  (worker)
+====================================================
+[Config]   input      = /data/input
+[Config]   output     = /data/output
+[Config]   model_type = 1 (BiSimpleRNN)
+[Startup]  Waiting 10s for chief to be ready…
+[Startup]  Done waiting ✓
+
+[Strategy] Initialising MultiWorkerMirroredStrategy…
+[Strategy] replicas = 3
+[Worker]   type=worker  index=1  is_chief=False
+
+[Step 1] Loading dataset…
+Train: 9543 | Test: 2388
+
+[Step 2] Adapting vectorizer…
+Vocabulary: 6000 tokens
+
+[Step 3] Global batch: 96  (32 x 3 replicas)
+
+[Step 4] Building BiSimpleRNN model…
+Model summary → /data/output/model_summary.txt
+
+Class weights: bearish=2.21  bullish=1.65  neutral=0.51
+
+[Step 5] Training BiSimpleRNN…
+
+Training done in 46s
+
+[Worker 1] Training complete — exiting cleanly.
