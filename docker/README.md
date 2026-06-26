@@ -167,4 +167,4 @@ docker run -d --name bitsimplernn-worker-2 --hostname bitsimplernn-worker-2 `
   birnngru-twitter:latest --input /data/input --output /data/output --model-type 1 --start-delay 15
 ```
 
-<img rc="img/diagrams.jpg">
+<img src="img/diagrams.jpg">
