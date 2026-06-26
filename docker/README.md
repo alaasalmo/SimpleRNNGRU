@@ -166,3 +166,5 @@ docker run -d --name bitsimplernn-worker-2 --hostname bitsimplernn-worker-2 `
   -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-2:/data/output" `
   birnngru-twitter:latest --input /data/input --output /data/output --model-type 1 --start-delay 15
 ```
+
+<img rc="img/diagrams.jpg">
