@@ -173,3 +173,41 @@ We can scale up the
 We can watch the output folder. We can see three folders but the worker-0 has the result and we can use it to load the training
 
 <img src="img/output-folder.png">
+
+## Run predict example to check the training for the three workers 
+Pointing to worker-0 to the folder in the output 
+
+<a href="simplernn_easy_predict.py">simplernn_easy_predict.py</a>
+
+<b>python simplernn_easy_predict.py</b>
+```
+Step 1: Tools loaded
+Found checkpoint: C:\alaa\github\SimpleRNNGRU\docker\data\output\worker-0\checkpoints\ckpt_10
+Found vocab file: C:\alaa\github\SimpleRNNGRU\docker\data\output\worker-0\vocab.txt
+Step 2: Loading saved vocabulary...
+2026-06-26 21:14:44.283554: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in per
+formance-critical operations.
+To enable the following instructions: AVX2 AVX_VNNI AVX_VNNI_INT8 AVX_NE_CONVERT FMA, in other operations, rebuild TensorFlow with the appropriate compiler f
+lags.
+Step 2: Done. Vocabulary has 6000 words
+Step 3: Building empty model shape...
+C:\Users\alaas\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\keras\src\layers\c
+ore\embedding.py:100: UserWarning: Argument `input_length` is deprecated. Just remove it.
+  warnings.warn(
+Step 3: Empty model built
+Step 4: Loading saved weights from: C:\alaa\github\SimpleRNNGRU\docker\data\output\worker-0\checkpoints\ckpt_10
+Step 4: Weights loaded! The model is now trained
+
+Step 5: Predictions:
+
+Sentence : Apple stock surges to all-time high on record earnings
+Guess    : BEARISH  (37% sure)
+
+Sentence : Markets crash as recession fears grip investors worldwide
+Guess    : BEARISH  (38% sure)
+
+Sentence : Fed holds rates steady as inflation remains uncertain
+Guess    : BEARISH  (39% sure)
+
+Done
+```

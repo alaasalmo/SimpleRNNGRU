@@ -59,7 +59,7 @@ Neutral: 1566
 
 3- Add Class weight when we have unbalance result for the class. calculates weights inversely proportional to frequency
 
-<a href="simplernn/bisimplernn_twitter_financial_CIND860.py">bisimplernn_twitter_financial_CIND860.py</a>
+<a href="simpleRNN/bisimplernn_twitter_financial_CIND860.py">bisimplernn_twitter_financial_CIND860.py</a>
 
 
 <b>Result:</b>
@@ -84,7 +84,7 @@ Class weights: bearish=2.21, bullsh=1.65, neutral=0.51
 ```
 
 <span style="color:red"><b>3. SimpleRNN Twitter financial (Bi-SimpleRNN,Dropout and Class weight + Augmentation)</b></span>
-<a href="simplernn/bisimplernn_twitter_financial_nlpaug_CIND860.py">bisimplernn_twitter_financial_nlpaug_CIND860.py</a>
+<a href="simpleRNN/bisimplernn_twitter_financial_nlpaug_CIND860.py">bisimplernn_twitter_financial_nlpaug_CIND860.py</a>
 
 ```
 ────────────────────────────────────────────────────
@@ -111,7 +111,7 @@ Refernce: https://www.kaggle.com/datasets/ankurzing/sentiment-analysis-for-finan
 
 <span style="color:red"><b>4. SimpleRNN Kaggle financial (Basic)</b></span>
 
-<a href="simplernn/simplernn_kaggle_CIND860.py">simplernn_kaggle_CIND860.py</a>
+<a href="simpleRNN/simplernn_kaggle_CIND860.py">simplernn_kaggle_CIND860.py</a>
 
 <b>Result:</b>
 
@@ -178,7 +178,7 @@ Class weights:
   positive = 1.19
 ```
 <span style="color:red"><b>6. SimpleRNN Kaggle financial (Bi-SimpleRNN,Dropout and Class weight + Augmentation)</b></span>
-<a href="simplernn/bisimplernn_kaggle_nlpaug_CIND860.py">bisimple_rnn_kaggle_nlpaug_CIND860.py</a>
+<a href="simpleRNN/bisimplernn_kaggle_nlpaug_CIND860.py">bisimple_rnn_kaggle_nlpaug_CIND860.py</a>
 
 <b>Result:</b>
 
