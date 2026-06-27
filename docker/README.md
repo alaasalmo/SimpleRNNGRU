@@ -183,7 +183,7 @@ We neeed to run the command to display the workers:
 docker ps -a 
 
 ```
-<img src="img\docker-ps.jpg">
+<img src="img\docker-ps.png">
 
 Note: we should see the three workers have the status with Exited
 
@@ -310,7 +310,7 @@ We neeed to run the command to display the workers:
 docker ps -a 
 
 ```
-<img src="img\docker-ps.jpg">
+<img src="img\docker-ps.png">
 
 Note: we should see the three workers have the status with Exited
 
