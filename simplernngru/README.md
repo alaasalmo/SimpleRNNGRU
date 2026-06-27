@@ -36,14 +36,16 @@ We have two sets of CLASSIFICATION REPORT (SimpleRNN & GRU). In the report for c
 Aso we have report for accuracy, macro avg and weighted avg
 
 
-# SimpleRNNGRU
+# SimpleRNN and GRU
 
 The plan is to implement SimpleRNN and GRU in two streams
 
 <b>First stream</b>: we implement simpleRNN with Twitter finance dataset and Kaggle dataset
+
 <img src="img/CIN860-diagram-1.jpg">
 
 <b>Second stream</b>: we implement GRU with Twitter finance dataset and Kaggle dataset
+
 <img src="img/CIN860-diagram-2.jpg">
 
 ## Twitter Financial News (Hagging face) 
@@ -57,6 +59,7 @@ Label: 0 = bearish 1 = bullish 2 = neutral
 Refrence: https://huggingface.co/datasets/zeroshot/twitter-financial-news-sentiment?utm_source=chatgpt.com
 
 <span style="color:red"><b>1. SimpleRNN Twitter financial (basic)</b></span>
+
 <a href="simplernn/simplernn_twitter_financial_CIND860.py">simplernn_twitter_financial_CIND860.py</a>
 
 <b>Result:</b>
