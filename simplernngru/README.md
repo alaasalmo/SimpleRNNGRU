@@ -2,12 +2,16 @@
 
 <b>Data analyses</b> We have two Datasets in this project:
 
-Data set:
-<b>(i): Twitter Financial News Sentiment Analysis from Haggingface (zeroshot/twitter-financial-news-sentiment)</b>
-<b>(ii): Kaggle Sentiment Analysis for Financial News Dataset</b>
+<b>Data set: </b>
+
+(i): Twitter Financial News Sentiment Analysis from Haggingface (zeroshot/twitter-financial-news-sentiment)
+
+(ii): Kaggle Sentiment Analysis for Financial News Dataset
+
 
 <b>Pipleine processing steps: </B>
-Part one:
+
+<b>Part one:</b>
 
 (i)  The data from zeroshot/twitter-financial-news-sentiment
 
@@ -17,7 +21,7 @@ Part one:
 
      TextVectorization is the layer that turns raw sentences into the numbers a neural network can actually work with. Let's go through it argument by argument.
 
-Part two: 
+<b>Part two:</b> 
 
 We tried to improve the processing:
 
@@ -26,6 +30,7 @@ We tried to improve the processing:
 (ii) Add augmenters (swap synonyms, delete random words, swap word positions and inject typos)
 
 <b> Improved selected models SimpleRNN and GRU)</b>
+
 (i) Build the model (SimpleRNN and GRU). We use 
 
 (ii) We use the Bidirectional for the both models to improve the accuracy for the two models SimpleRNN and GRU
