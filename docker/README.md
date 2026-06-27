@@ -143,19 +143,24 @@ docker build -f Dockerfile.kaggle -t birnngru-kaggle:latest .
 docker build -f Dockerfile.twitter -t birnngru-twitter:latest .
 ```
 
-## Display the images in the local docker
+## IV. Display the images in the local docker
 
 ```
 docker images
 ```
 <img src="img/list-mages.jpg">
 
-## Run in the local docker for twitter-financial-news-sentiment
+## V. Run in the local docker for twitter-financial-news-sentiment
 
 <p>When we run SimpleRNN, we have to choose model-type=1. When we want to run GRU model-type=2</b>
 
 We run the docker commands at Powershell. We need to run with three workers (worker-0, worker-1 and worker-2). the worker-0 is chief-worker. The chief-worker is the master of worker. I responsible for filtering and prepare data. After to train the model, the three workers will train models.  
+
 We suppose to use three workers. Worker-0 is chief worker (the main role for this worker is deal with dataset. Send the data to different worker. This worker is waiting when all the other workers start.
+
+We will need to build file for each worker bitsimplernn-worker-0.env, bitsimplernn-worker-1.env ...
+
+We need to pass paramter for cluster configuraiton to the image. We have to pass file instead of string because we are running the test on windows
 
 ```
 docker run -d --name bitsimplernn-worker-0 --hostname bitsimplernn-worker-0 `
@@ -184,7 +189,7 @@ We can watch the output folder. We can see three folders but the worker-0 has th
 
 <img src="img/output-folder.png">
 
-## Run check the run completed to run the prediction
+## VI. Run check the run completed to run the prediction
 We neeed to run the command to display the workers:
 ```
 docker ps -a 
@@ -203,7 +208,8 @@ docker rm -f bitsimplernn-worker-0 bitsimplernn-worker-1 bitsimplernn-worker-2
 
 ```
 
-## Run predict example to check the training for the three workers For SimpleRNN
+## VII. Run predict example to check the training for the three workers For SimpleRNN
+
 Pointing to worker-0 to the folder in the output 
 
 <a href="simplernn_easy_predict.py">simplernn_twitter_easy_predict.py</a>
@@ -244,7 +250,7 @@ Note: If we want to do the testing for GRU, we have to run the docker commands i
 <a href="gru_easy_predict.py">gru_twitter_easy_predict.py</a>
 
 
-## Run in the local docker for Kaggle
+## VIII. Run in the local docker for Kaggle
 
 We need to copy the file all-data.csv to input folder. This file is from Kaggle. 
 
@@ -269,7 +275,7 @@ docker run -d --name bitsimplernn-worker-2 --hostname bitsimplernn-worker-2 `
 
 ```
 
-## Run predict example to check the training for the three workers For SimpleRNN
+## IX. Run predict example to check the training for the three workers For SimpleRNN
 
 We suppose to use three workers. Worker-0 is chief worker (the main role for this worker is deal with dataset. Send the data to different worker. This worker is waiting when all the other workers start.
 
@@ -311,7 +317,7 @@ Done
 Note: If we want to do the testing for GRU, we have to run the docker commands in the prvious section with --model-type 2 and change the python code  the MODEL_TYPE = 2. Or you can use 
 <a href="gru_kaggle_easy_predict.py">gru_kaggle_easy_predict.py</a>
 
-## Run check the run completed to run the prediction
+## X. Run check the run completed to run the prediction
 We neeed to run the command to display the workers:
 ```
 docker ps -a 
@@ -329,3 +335,12 @@ docker ps -a
 docker rm -f bitsimplernn-worker-0 bitsimplernn-worker-1 bitsimplernn-worker-2
 
 ```
+
+## XI. Prepare the containers for more that 3 workers or less.
+
+We aready mentioned that we will need to build file for each worker like <a href="bitsimplernn-worker-0.env">bitsimplernn-worker-0.env</a> , <a href="bitsimplernn-worker-1.env">bitsimplernn-worker-1.env</a> and so on.
+
+After that we will need to run the docker commands in VIII. Depenidng on the number of workers with choosing the model (1 for SimpleRNN and 2 for GRU).
+
+For runing prediction test to make sure the distributed run happend, we can go to step VII and IX.
+ 
