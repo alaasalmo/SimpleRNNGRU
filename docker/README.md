@@ -3,7 +3,30 @@
 <center><img src="img/docker-container.png"></center>
 
 
-## I. Prepare the file from phase-1 to phase-2
+## I. Project plan:
+
+After improve the models (SimpleRNN and GRU). We have to containarize the two models and use these two models with two dataset (Twitter & Kaggle).
+
+(i) Prepare the Python code to merge the two models (SimpleRNN and GRU). We generate two python files for each dataset.
+
+- Add model-type parameter to choose the model (SimpleRNN and GRU)
+
+- Use the code for using Bi-directional and Class wight improvement
+
+(ii) Data processing pipline: We prepare data, add wight for data processing.
+
+(iii) Build the two files (each file with Data set) in container. We will have two containers
+
+(iii) Build the image for each container
+
+(IV) Run the three workers. Each one contains the image in iii. The first one is Chief and the other two are slaves.
+
+(V) The train data will go to three output folders. But the main folder that we can use it is worker-0 (for the Chief worker)
+
+(VI) After that we one simple model (SimpleRNN or GRU) to load the train model and predict.
+
+
+## II. Prepare the file from phase-1 to phase-2
 We need to merge the two files from phase one. Merge the SimpleRNN and GRU for each Dataset (Kaggle & Twitter Financial news)
 
 <b>1-Twitter financial news for SimpleRNN and GRU</b>
@@ -18,7 +41,7 @@ We need to merge the two files from phase one. Merge the SimpleRNN and GRU for e
 
 <a href="birnn_bigru_kaggle_multiworker.py">birnn_bigru_kaggle_multiworker.py</a>
 
-## II. Prepare the file for building images
+## III. Prepare the file for building images
 
 We need to build the image through building Dockerfile
 
@@ -129,7 +152,7 @@ ENTRYPOINT ["python", "birnn_bigru_kaggle_multiworker.py"]
 <a href="Dockerfile.kaggle">Dockerfile.kaggle</a>
 
 
-## III. Build the image with Docker file
+## IV. Build the image with Docker file
 
 <b>Build Docker container image for Kaggle</b>
 
@@ -143,14 +166,14 @@ docker build -f Dockerfile.kaggle -t birnngru-kaggle:latest .
 docker build -f Dockerfile.twitter -t birnngru-twitter:latest .
 ```
 
-## IV. Display the images in the local docker
+## V. Display the images in the local docker
 
 ```
 docker images
 ```
 <img src="img/list-mages.jpg">
 
-## V. Run in the local docker for twitter-financial-news-sentiment
+## VI. Run in the local docker for twitter-financial-news-sentiment
 
 <p>When we run SimpleRNN, we have to choose model-type=1. When we want to run GRU model-type=2</b>
 
@@ -189,7 +212,7 @@ We can watch the output folder. We can see three folders but the worker-0 has th
 
 <img src="img/output-folder.png">
 
-## VI. Run check the run completed to run the prediction
+## VII. Run check the run completed to run the prediction
 We neeed to run the command to display the workers:
 ```
 docker ps -a 
@@ -208,7 +231,7 @@ docker rm -f bitsimplernn-worker-0 bitsimplernn-worker-1 bitsimplernn-worker-2
 
 ```
 
-## VII. Run predict example to check the training for the three workers For SimpleRNN
+## VIII. Run predict example to check the training for the three workers For SimpleRNN
 
 Pointing to worker-0 to the folder in the output 
 
@@ -250,7 +273,7 @@ Note: If we want to do the testing for GRU, we have to run the docker commands i
 <a href="gru_easy_predict.py">gru_twitter_easy_predict.py</a>
 
 
-## VIII. Run in the local docker for Kaggle
+## IX. Run in the local docker for Kaggle
 
 We need to copy the file all-data.csv to input folder. This file is from Kaggle. 
 
@@ -275,7 +298,7 @@ docker run -d --name bitsimplernn-worker-2 --hostname bitsimplernn-worker-2 `
 
 ```
 
-## IX. Run predict example to check the training for the three workers For SimpleRNN
+## X. Run predict example to check the training for the three workers For SimpleRNN
 
 We suppose to use three workers. Worker-0 is chief worker (the main role for this worker is deal with dataset. Send the data to different worker. This worker is waiting when all the other workers start.
 
@@ -317,7 +340,7 @@ Done
 Note: If we want to do the testing for GRU, we have to run the docker commands in the prvious section with --model-type 2 and change the python code  the MODEL_TYPE = 2. Or you can use 
 <a href="gru_kaggle_easy_predict.py">gru_kaggle_easy_predict.py</a>
 
-## X. Run check the run completed to run the prediction
+## XI. Run check the run completed to run the prediction
 We neeed to run the command to display the workers:
 ```
 docker ps -a 
@@ -336,7 +359,7 @@ docker rm -f bitsimplernn-worker-0 bitsimplernn-worker-1 bitsimplernn-worker-2
 
 ```
 
-## XI. Prepare the containers for more that 3 workers or less.
+## XII. Prepare the containers for more that 3 workers or less.
 
 We aready mentioned that we will need to build file for each worker like <a href="bitsimplernn-worker-0.env">bitsimplernn-worker-0.env</a> , <a href="bitsimplernn-worker-1.env">bitsimplernn-worker-1.env</a> and so on.
 
