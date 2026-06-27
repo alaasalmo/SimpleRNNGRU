@@ -1,3 +1,34 @@
+# Project plan
+
+<b>Data analyses</b> We will two Datasets in this project:
+
+Data set:
+<b>(i): Twitter Financial News Sentiment Analysis from Haggingface (zeroshot/twitter-financial-news-sentiment)</b>
+<b>(ii): Kaggle Sentiment Analysis for Financial News Dataset</b>
+
+The pipleine processing steps:
+Part one:
+(i)  The data from zeroshot/twitter-financial-news-sentiment
+
+(ii) Build the train_texts and test_texts from text and label columns
+
+(ii) We use the method of TextVectorization (Tensorflow.keras.layers.TextVectorization)
+     TextVectorization is the layer that turns raw sentences into the numbers a neural network can actually work with. Let's go through it argument by argument.
+
+Part two: We tried to improve the processing:
+
+(i) Solve the issue of imbalanced (e.g. neutral=60%, negative=11%). Without weighting, the model ignores rare classes to maximise accuracy. Compute_class_weight("balanced") assigns weights inversely proportional to frequency, so a mistake on a rare class costs proportionally more: 
+
+(ii) Add augmenters (swap synonyms, delete random words, swap word positions and inject typos)
+
+<b> Improved selected models SimpleRNN and GRU)</b>
+(i) Build the model (SimpleRNN and GRU). We use 
+
+(ii) We use the Bidirectional for the both models to improve the accuracy for the two models SimpleRNN and GRU
+
+Algorithms evaluation, including testing options, exploring algorithms, and reporting results
+
+
 # SimpleRNNGRU
 
 The plan is to implement SimpleRNN and GRU in two streams
