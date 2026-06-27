@@ -231,6 +231,16 @@ docker rm -f bitsimplernn-worker-0 bitsimplernn-worker-1 bitsimplernn-worker-2
 
 ```
 
+We can check the log for each container
+
+```
+
+docker logs <container-id>
+
+docker logs ff15f8af5c3e
+
+```
+
 ## VIII. Run predict example to check the training for the three workers For SimpleRNN
 
 Pointing to worker-0 to the folder in the output 
