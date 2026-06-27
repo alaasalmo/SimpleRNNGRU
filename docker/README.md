@@ -25,6 +25,7 @@ After improve the models (SimpleRNN and GRU). We have to containarize the two mo
 
 (VI) After that we one simple model (SimpleRNN or GRU) to load the train model and predict.
 
+<img src="img\docker-drawio.png">
 
 ## II. Prepare the file from phase-1 to phase-2
 We need to merge the two files from phase one. Merge the SimpleRNN and GRU for each Dataset (Kaggle & Twitter Financial news)
