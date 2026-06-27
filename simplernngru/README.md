@@ -1,6 +1,6 @@
 # Project plan
 
-<b>Data analyses</b> We will two Datasets in this project:
+<b>Data analyses</b> We have two Datasets in this project:
 
 Data set:
 <b>(i): Twitter Financial News Sentiment Analysis from Haggingface (zeroshot/twitter-financial-news-sentiment)</b>
