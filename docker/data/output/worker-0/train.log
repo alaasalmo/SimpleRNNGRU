@@ -3,6 +3,7 @@ BiSimpleRNN  |  worker-0  (chief)
 ====================================================
 [Config]   input      = /data/input
 [Config]   output     = /data/output
+[Config]   data_path  = /data/input/all-data.csv
 [Config]   model_type = 1 (BiSimpleRNN)
 
 [Strategy] Initialising MultiWorkerMirroredStrategy…
@@ -10,69 +11,70 @@ BiSimpleRNN  |  worker-0  (chief)
 [Worker]   type=worker  index=0  is_chief=True
 
 [Step 1] Loading dataset…
-Train: 9543 | Test: 2388
+Total rows: 4846
+Train: 3876 | Test: 970
 
 [Step 2] Adapting vectorizer…
-Vocabulary: 6000 tokens
+Vocabulary: 5000 tokens
 Vocabulary saved → /data/output/vocab.txt
 
-[Step 3] Global batch: 96  (32 x 3 replicas)
+[Step 3] Global batch: 192  (64 x 3 replicas)
 
 [Step 4] Building BiSimpleRNN model…
 Model summary → /data/output/model_summary.txt
 
-Class weights: bearish=2.21  bullish=1.65  neutral=0.51
+Class weights: negative=2.59  neutral=0.56  positive=1.19
 
 [Step 5] Training BiSimpleRNN…
 
-Training done in 44s
+Training done in 11s
 
 [Step 6] Building single-worker inference model…
 Weights transferred ✓
 Evaluating…
 
 ────────────────────────────────────────────────────
-CLASSIFICATION REPORT  (BiSimpleRNN — MultiWorker)
+CLASSIFICATION REPORT  (BiSimpleRNN — MultiWorker, Kaggle CSV)
 ────────────────────────────────────────────────────
               precision    recall  f1-score   support
 
-     bearish       0.51      0.61      0.56       347
-     bullish       0.64      0.61      0.63       475
-     neutral       0.86      0.83      0.84      1566
+    negative       0.54      0.53      0.54       105
+     neutral       0.75      0.74      0.75       585
+    positive       0.49      0.51      0.50       280
 
-    accuracy                           0.76      2388
-   macro avg       0.67      0.69      0.68      2388
-weighted avg       0.76      0.76      0.76      2388
+    accuracy                           0.65       970
+   macro avg       0.59      0.59      0.59       970
+weighted avg       0.65      0.65      0.65       970
 
-Test accuracy : 75.54%
-Best train acc: 99.54%
-Training time : 44s
-Parameters    : 404,739
+Test accuracy : 65.15%
+Best train acc: 99.30%
+Training time : 11s
+Parameters    : 164,355
 Replicas used : 3
 Report saved  → /data/output/classification_report.txt
 
 ────────────────────────────────────────────────────
 SAMPLE PREDICTIONS  (BiSimpleRNN)
 ────────────────────────────────────────────────────
-  Text  : Apple stock surges to all-time high on record earnings
-  Result: BULLISH  (100% confident)
-  Scores: bear=0.00  bull=1.00  neu=0.00
+  Text  : The company reported record profits and strong revenue growth
+  Result: NEUTRAL  (95% confident)
+  Scores: neg=0.03  neu=0.95  pos=0.02
 
-  Text  : Markets crash as recession fears grip investors worldwide
-  Result: BEARISH  (100% confident)
-  Scores: bear=1.00  bull=0.00  neu=0.00
+  Text  : Massive layoffs announced as sales decline sharply
+  Result: NEGATIVE  (77% confident)
+  Scores: neg=0.77  neu=0.20  pos=0.02
 
-  Text  : Fed holds rates steady as inflation remains uncertain
-  Result: NEUTRAL  (91% confident)
-  Scores: bear=0.07  bull=0.03  neu=0.91
+  Text  : The firm maintained normal operations this quarter
+  Result: NEUTRAL  (84% confident)
+  Scores: neg=0.14  neu=0.84  pos=0.02
 
-  Text  : Tesla shares drop 15% after missing delivery targets badly
-  Result: BEARISH  (100% confident)
-  Scores: bear=1.00  bull=0.00  neu=0.00
+  Text  : Shares tumble after the firm missed earnings expectations
+  Result: POSITIVE  (69% confident)
+  Scores: neg=0.01  neu=0.29  pos=0.69
 
-  Text  : Goldman Sachs upgrades sector outlook citing strong growth
-  Result: BEARISH  (67% confident)
-  Scores: bear=0.67  bull=0.32  neu=0.01
+  Text  : Investors cheered after the merger was finalized successfully
+  Result: NEUTRAL  (93% confident)
+  Scores: neg=0.01  neu=0.93  pos=0.06
 
 Predictions saved → /data/output/sample_predictions.txt
 

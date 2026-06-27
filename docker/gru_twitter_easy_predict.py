@@ -6,14 +6,18 @@ WORKER_DIR = r"C:\alaa\github\SimpleRNNGRU\docker\data\output\worker-0"
 # ^ Just point this at the worker-0 output folder. The script will
 #   automatically find the latest checkpoint and vocab.txt inside it.
 
-MODEL_TYPE = 1
+MODEL_TYPE = 2
 # ^ Must match what you used for training:
 #   1 = SimpleRNN model   |   2 = GRU model
 
 # ─────────────────────────────────────────────────────────────────────
 # STEP 1: Imports (just loading the tools we need)
 # ─────────────────────────────────────────────────────────────────────
-import os, glob
+import os
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+# ^ Must be set BEFORE importing tensorflow, or it has no effect.
+
+import glob
 import tensorflow as tf
 
 print("Step 1: Tools loaded")
@@ -22,7 +26,6 @@ print("Step 1: Tools loaded")
 # STEP 1b: Find the checkpoint and vocab files automatically
 # ─────────────────────────────────────────────────────────────────────
 VOCAB_PATH = os.path.join(WORKER_DIR, "vocab.txt")
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
 ckpt_index_files = glob.glob(os.path.join(WORKER_DIR, "checkpoints", "ckpt_*.index"))
 if not ckpt_index_files:
@@ -86,7 +89,13 @@ print("Step 3: Empty model built")
 # STEP 4: Load the trained weights into the empty model
 # ─────────────────────────────────────────────────────────────────────
 print(f"Step 4: Loading saved weights from: {CHECKPOINT_PATH}")
-model.load_weights(CHECKPOINT_PATH)
+# NOTE: these checkpoints were saved in the older TensorFlow checkpoint
+# format (ckpt_10.index + ckpt_10.data-...) via ModelCheckpoint with
+# save_weights_only=True. Keras 3's model.load_weights() no longer reads
+# that format directly (it only reads .weights.h5/.keras), so we load it
+# the way TensorFlow checkpoints are meant to be restored.
+checkpoint = tf.train.Checkpoint(model)
+checkpoint.restore(CHECKPOINT_PATH).expect_partial()
 print("Step 4: Weights loaded! The model is now trained")
 
 # ─────────────────────────────────────────────────────────────────────

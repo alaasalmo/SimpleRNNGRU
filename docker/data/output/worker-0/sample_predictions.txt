@@ -1,22 +1,22 @@
 SAMPLE PREDICTIONS  (BiSimpleRNN)
 ────────────────────────────────────────────────────
-  Text  : Apple stock surges to all-time high on record earnings
-  Result: BULLISH  (100% confident)
-  Scores: bear=0.00  bull=1.00  neu=0.00
+  Text  : The company reported record profits and strong revenue growth
+  Result: NEUTRAL  (95% confident)
+  Scores: neg=0.03  neu=0.95  pos=0.02
 
-  Text  : Markets crash as recession fears grip investors worldwide
-  Result: BEARISH  (100% confident)
-  Scores: bear=1.00  bull=0.00  neu=0.00
+  Text  : Massive layoffs announced as sales decline sharply
+  Result: NEGATIVE  (77% confident)
+  Scores: neg=0.77  neu=0.20  pos=0.02
 
-  Text  : Fed holds rates steady as inflation remains uncertain
-  Result: NEUTRAL  (91% confident)
-  Scores: bear=0.07  bull=0.03  neu=0.91
+  Text  : The firm maintained normal operations this quarter
+  Result: NEUTRAL  (84% confident)
+  Scores: neg=0.14  neu=0.84  pos=0.02
 
-  Text  : Tesla shares drop 15% after missing delivery targets badly
-  Result: BEARISH  (100% confident)
-  Scores: bear=1.00  bull=0.00  neu=0.00
+  Text  : Shares tumble after the firm missed earnings expectations
+  Result: POSITIVE  (69% confident)
+  Scores: neg=0.01  neu=0.29  pos=0.69
 
-  Text  : Goldman Sachs upgrades sector outlook citing strong growth
-  Result: BEARISH  (67% confident)
-  Scores: bear=0.67  bull=0.32  neu=0.01
+  Text  : Investors cheered after the merger was finalized successfully
+  Result: NEUTRAL  (93% confident)
+  Scores: neg=0.01  neu=0.93  pos=0.06
 
