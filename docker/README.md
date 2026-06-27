@@ -166,5 +166,10 @@ docker run -d --name bitsimplernn-worker-2 --hostname bitsimplernn-worker-2 `
   -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-2:/data/output" `
   birnngru-twitter:latest --input /data/input --output /data/output --model-type 1 --start-delay 15
 ```
-
+The diagram below shows the three workers. The role of chief-worker and another workers.
+We can scale up the 
 <img src="img/diagrams.jpg">
+
+We can watch the output folder. We can see three folders but the worker-0 has the result and we can use it to load the training
+
+<img src="img/output-folder.png">

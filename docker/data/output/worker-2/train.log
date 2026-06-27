@@ -26,6 +26,6 @@ Class weights: bearish=2.21  bullish=1.65  neutral=0.51
 
 [Step 5] Training BiSimpleRNN…
 
-Training done in 46s
+Training done in 43s
 
 [Worker 2] Training complete — exiting cleanly.

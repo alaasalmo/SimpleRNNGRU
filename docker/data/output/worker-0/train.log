@@ -25,7 +25,7 @@ Class weights: bearish=2.21  bullish=1.65  neutral=0.51
 
 [Step 5] Training BiSimpleRNN…
 
-Training done in 46s
+Training done in 44s
 
 [Step 6] Building single-worker inference model…
 Weights transferred ✓
@@ -46,7 +46,7 @@ weighted avg       0.76      0.76      0.76      2388
 
 Test accuracy : 75.54%
 Best train acc: 99.54%
-Training time : 46s
+Training time : 44s
 Parameters    : 404,739
 Replicas used : 3
 Report saved  → /data/output/classification_report.txt
