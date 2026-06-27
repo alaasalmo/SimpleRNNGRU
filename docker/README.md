@@ -1,6 +1,10 @@
 ### Simple RNN & GRU model container base (Docker)
-We need to merge the two files from phase one. Merge the SimpleRNN and GRU for each Dataset (Kaggle & Twitter Financial news)
+
 <center><img src="img/docker-container.png"></center>
+
+
+## I. Prepare the file from phase-1 to phase-2
+We need to merge the two files from phase one. Merge the SimpleRNN and GRU for each Dataset (Kaggle & Twitter Financial news)
 <b>1-Kaggle for SimpleRNN and GRU</b>
 
 <img src="img/kaggle-SimpleRNN-GRU.png">
