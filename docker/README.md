@@ -1,23 +1,24 @@
-### Simple RNN & GRU model container base (Docker)
+#### Simple RNN & GRU model container base (Docker)
 
 <center><img src="img/docker-container.png"></center>
 
 
 ## I. Prepare the file from phase-1 to phase-2
 We need to merge the two files from phase one. Merge the SimpleRNN and GRU for each Dataset (Kaggle & Twitter Financial news)
-<b>1-Kaggle for SimpleRNN and GRU</b>
 
-<img src="img/kaggle-SimpleRNN-GRU.png">
+<b>1-Twitter financial news for SimpleRNN and GRU</b>
 
-<a href="birnn_bigru_kaggle_CIND860.py">birnn_bigru_kaggle_CIND860.py</a>
+<img src="img/twitter-SimpleRNN-GRU.png">
+
+<a href="birnn_bigru_twitter_multiworker.py">birnn_bigru_twitter_multiworker.py</a>
 
 <b>2-Twitter financial news for SimpleRNN and GRU</b>
 
 <img src="img/twitter-SimpleRNN-GRU.png">
 
-<a href="birnn_bigru_twitter_financial_CIND860.py">birnn_bigru_twitter_financial_CIND860.py</a>
+<a href="birnn_bigru_kaggle_multiworker.py">birnn_bigru_kaggle_multiworker.py</a>
 
-## Prepare the file for building images
+## II. Prepare the file for building images
 
 We need to build the image through building Dockerfile
 
