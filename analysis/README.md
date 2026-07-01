@@ -210,7 +210,7 @@ SimpleRNN vs BiSimpleRNN
 
 <img src="img/simplernn_vs_bisimplernn_comparison_simplernn_kaggle.png">
 
-<a href="four_experiments_simplernn_twitter.py">four_experiments_simplernn_kaggle.py</a>
+<a href="four_experiments_simplernn_kaggle.py">four_experiments_simplernn_kaggle.py</a>
 
 
 
