@@ -45,8 +45,11 @@ Macro-F1=(F1 bearish​ + F1 bullish​ + F1 neutral​​)/3
 <b>Best BiSimpleRNN Hyperparameters Found</b>
 
 Best Learning Rate [0.0005, 0.001, 0.002, 0.005]: 0.0005
+
 Best Vocab Size [6000, 10000, 15000]: 6000
+
 Best Embedding Dimension [32, 64, 128]: 32
+
 Best RNN Units [32, 64, 128]: 32
 
 Final combined BiSimpleRNN -> Accuracy: 77.43%  Macro-F1: 0.6820
