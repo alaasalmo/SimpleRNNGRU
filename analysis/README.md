@@ -76,7 +76,7 @@ Augmentation (depending on NLP)
 
 SimpleRNN vs BiSimpleRNN
 
-<img src="simplernn_vs_bisimplernn_comparison_simplernn_twitter.png">
+<img src="img/simplernn_vs_bisimplernn_comparison_simplernn_twitter.png">
 
 <a href="four_experiments_simplernn_twitter.py">four_experiments_simplernn_twitter.py</a>
 
