@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import nltk
 from sklearn.metrics import classification_report, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.utils.class_weight import compute_class_weight
@@ -121,48 +122,52 @@ def build_model(dropout_rate=HP["dropout_rate"], bidirectional=False):
 # ==================================================================
 # PART 4: TRACK MACRO-F1 EVERY EPOCH + EARLY STOP AT BEST POINT
 # ==================================================================
-class TrackBestEpoch(tf.keras.callbacks.Callback):
+def evaluate_macro_f1(model, dataset):
+    """Runs the model over a tf.data dataset and returns macro-F1."""
+    true_labels, predicted_labels = [], []
+    for batch_x, batch_y in dataset:
+        predictions = model.predict(batch_x, verbose=0).argmax(axis=1)
+        predicted_labels.extend(predictions.tolist())
+        true_labels.extend(batch_y.numpy().tolist())
+    return f1_score(true_labels, predicted_labels, average="macro")
+
+
+def train_with_tracking(model, train_ds, val_ds, class_weight_dict, max_epochs, patience):
     """
-    Each epoch: predicts on validation set, computes macro-F1,
-    remembers the best epoch's weights, and stops early if stuck.
+    Trains one epoch at a time, checks macro-F1 on the validation set
+    after each epoch, keeps the best-scoring weights, and stops early
+    if there's no improvement for `patience` epochs in a row.
+    Returns a plain dict: f1_per_epoch, best_f1, best_epoch.
     """
-    def __init__(self, val_dataset, patience):
-        super().__init__()
-        self.val_dataset = val_dataset
-        self.patience = patience
-        self.f1_per_epoch = []
-        self.best_f1 = -1
-        self.best_epoch = 0
-        self.best_weights = None
-        self.epochs_without_improvement = 0
+    f1_per_epoch = []
+    best_f1 = -1
+    best_epoch = 0
+    best_weights = None
+    epochs_without_improvement = 0
 
-    def on_epoch_end(self, epoch, logs=None):
-        true_labels, predicted_labels = [], []
-        for batch_x, batch_y in self.val_dataset:
-            predictions = self.model.predict(batch_x, verbose=0).argmax(axis=1)
-            predicted_labels.extend(predictions.tolist())
-            true_labels.extend(batch_y.numpy().tolist())
+    for epoch in range(max_epochs):
+        model.fit(train_ds, epochs=1, verbose=0, class_weight=class_weight_dict)
 
-        current_f1 = f1_score(true_labels, predicted_labels, average="macro")
-        self.f1_per_epoch.append(current_f1)
+        current_f1 = evaluate_macro_f1(model, val_ds)
+        f1_per_epoch.append(current_f1)
+        print(f"  Epoch {epoch + 1}: val_macro_f1 = {current_f1:.4f}")
 
-        if current_f1 > self.best_f1:
-            self.best_f1 = current_f1
-            self.best_epoch = epoch + 1
-            self.best_weights = self.model.get_weights()
-            self.epochs_without_improvement = 0
+        if current_f1 > best_f1:
+            best_f1 = current_f1
+            best_epoch = epoch + 1
+            best_weights = model.get_weights()
+            epochs_without_improvement = 0
         else:
-            self.epochs_without_improvement += 1
+            epochs_without_improvement += 1
 
-        print(f"  Epoch {epoch+1}: val_macro_f1 = {current_f1:.4f}")
+        if epochs_without_improvement >= patience:
+            print(f"  No improvement for {patience} epochs. Stopping.")
+            break
 
-        if self.epochs_without_improvement >= self.patience:
-            print(f"  No improvement for {self.patience} epochs. Stopping.")
-            self.model.stop_training = True
+    if best_weights is not None:
+        model.set_weights(best_weights)
 
-    def on_train_end(self, logs=None):
-        if self.best_weights is not None:
-            self.model.set_weights(self.best_weights)
+    return {"f1_per_epoch": f1_per_epoch, "best_f1": best_f1, "best_epoch": best_epoch}
 
 
 # ==================================================================
@@ -175,36 +180,43 @@ def get_class_weights(labels):
 
 
 # ==================================================================
-# PART 5b: SIMPLE TEXT AUGMENTATION (no extra dependencies)
+# PART 5b: NLP-BASED TEXT AUGMENTATION (WordNet synonym replacement)
 # ==================================================================
-# A small synonym map covering common words in financial news text.
-# Deliberately conservative — avoids swapping words that carry strong
-# sentiment meaning (e.g. "missed", "beat", "loss", "profit") since
-# those are exactly what the model needs to learn correctly.
-SYNONYM_MAP = {
-    "company": ["firm", "business", "corporation"],
-    "said": ["stated", "noted", "reported"],
-    "plans": ["intends", "aims"],
-    "year": ["yr", "annual period"],
-    "market": ["marketplace", "exchange"],
-    "shares": ["stock", "equity"],
-    "increase": ["rise", "grow", "climb"],
-    "decrease": ["decline", "drop", "fall"],
-    "quarter": ["qtr", "fiscal period"],
-    "announced": ["disclosed", "revealed"],
-    "new": ["recent", "fresh"],
-    "growth": ["expansion", "increase"],
-    "deal": ["agreement", "transaction"],
-    "expects": ["anticipates", "forecasts"],
-}
+# Instead of a hand-picked synonym dictionary, synonyms are looked up
+# automatically with NLTK's WordNet — a large lexical database of
+# English word relationships. This covers any word in the vocabulary,
+# not just the ones someone thought to hard-code.
+try:
+    nltk.data.find("corpora/wordnet")
+except LookupError:
+    nltk.download("wordnet", quiet=True)
+try:
+    nltk.data.find("corpora/omw-1.4")
+except LookupError:
+    nltk.download("omw-1.4", quiet=True)
+
+from nltk.corpus import wordnet
+
+
+def get_synonyms(word):
+    """Look up single-word WordNet synonyms for `word` (case-insensitive)."""
+    synonyms = set()
+    for syn in wordnet.synsets(word):
+        for lemma in syn.lemmas():
+            name = lemma.name().replace("_", " ")
+            if " " in name:
+                continue  # skip multi-word phrases, keep augmented text natural
+            if name.lower() != word.lower():
+                synonyms.add(name)
+    return list(synonyms)
 
 
 def augment_text(text, seed_rng):
     """
     Applies ONE random augmentation operation to a single text:
-      - synonym swap (replace a known word with a synonym)
+      - synonym swap (replace a word with a WordNet synonym)
       - random word swap (swap two adjacent words)
-      - random word deletion (drop one non-critical word)
+      - random word deletion (drop one word)
     Returns a NEW string; the original is left untouched by the caller.
     """
     words = text.split()
@@ -214,11 +226,17 @@ def augment_text(text, seed_rng):
     op = seed_rng.choice(["synonym", "swap", "delete"])
 
     if op == "synonym":
-        candidates = [i for i, w in enumerate(words) if w.lower() in SYNONYM_MAP]
-        if not candidates:
-            return text
-        idx = seed_rng.choice(candidates)
-        words[idx] = seed_rng.choice(SYNONYM_MAP[words[idx].lower()])
+        # try words in random order until one has a usable WordNet synonym
+        indices = list(range(len(words)))
+        seed_rng.shuffle(indices)
+        for idx in indices:
+            word = words[idx]
+            synonyms = get_synonyms(word.lower())
+            if synonyms:
+                words[idx] = seed_rng.choice(synonyms)
+                break
+        else:
+            return text  # no swappable word found
 
     elif op == "swap":
         idx = seed_rng.randint(0, len(words) - 2)
@@ -272,7 +290,6 @@ def train_and_evaluate(train_texts, train_labels, test_texts, test_labels, vecto
     test_ds = to_tf_dataset(test_texts, test_labels, vectorizer, shuffle=False)
 
     model = build_model(dropout_rate=dropout_rate, bidirectional=bidirectional)
-    tracker = TrackBestEpoch(val_ds, patience=PATIENCE)
 
     class_weight_dict = get_class_weights(tr_labels) if use_class_weights else None
     if class_weight_dict:
@@ -283,8 +300,8 @@ def train_and_evaluate(train_texts, train_labels, test_texts, test_labels, vecto
           f"bidirectional={bidirectional}, augmentation={'ON' if use_augmentation else 'OFF'} "
           f"(up to {MAX_EPOCHS} epochs, patience={PATIENCE})")
 
-    model.fit(train_ds, epochs=MAX_EPOCHS, verbose=0,
-              class_weight=class_weight_dict, callbacks=[tracker])
+    result = train_with_tracking(model, train_ds, val_ds, class_weight_dict,
+                                  max_epochs=MAX_EPOCHS, patience=PATIENCE)
 
     true_labels, predicted_labels = [], []
     for batch_x, batch_y in test_ds:
@@ -292,25 +309,27 @@ def train_and_evaluate(train_texts, train_labels, test_texts, test_labels, vecto
         predicted_labels.extend(predictions.tolist())
         true_labels.extend(batch_y.numpy().tolist())
 
-    print(f"Best epoch: {tracker.best_epoch} (out of {len(tracker.f1_per_epoch)} trained)")
+    print(f"Best epoch: {result['best_epoch']} (out of {len(result['f1_per_epoch'])} trained)")
     print(classification_report(true_labels, predicted_labels,
                                  target_names=CLASS_NAMES, zero_division=0))
 
-    return tracker
+    return result
 
 
 # ==================================================================
 # PART 7: PLOTTING (shared helper)
 # ==================================================================
 def plot_comparison(results, title, filename):
-    """results: list of (label, tracker) tuples."""
+    """results: list of (label, result_dict) tuples."""
     plt.figure(figsize=(9, 5))
     colors = ["#1baf7a", "#2a78d6", "#e34948", "#a26fd4"]
 
-    for (label, tracker), color in zip(results, colors):
-        epochs = range(1, len(tracker.f1_per_epoch) + 1)
-        plt.plot(epochs, tracker.f1_per_epoch, label=label, color=color)
-        plt.scatter(tracker.best_epoch, tracker.f1_per_epoch[tracker.best_epoch - 1],
+    for (label, result), color in zip(results, colors):
+        f1_per_epoch = result['f1_per_epoch']
+        best_epoch = result['best_epoch']
+        epochs = range(1, len(f1_per_epoch) + 1)
+        plt.plot(epochs, f1_per_epoch, label=label, color=color)
+        plt.scatter(best_epoch, f1_per_epoch[best_epoch - 1],
                     color=color, marker="*", s=150, zorder=5, edgecolors="black")
 
     plt.xlabel("Epoch")
@@ -337,63 +356,63 @@ if __name__ == "__main__":
     # ============================================================
     # EXPERIMENT 1: Dropout comparison (baseline GRU, no class weights)
     # ============================================================
-    print(f"\n{'='*60}\nEXPERIMENT 1: DROPOUT vs NO DROPOUT\n{'='*60}")
+    print(f"\n{'='*45}\nEXPERIMENT 1: DROPOUT vs NO DROPOUT\n{'='*45}")
     dropout_results = []
     for rate in DROPOUT_SETTINGS_TO_TEST:
         label = "no dropout" if rate == 0.0 else f"dropout={rate}"
-        tracker = train_and_evaluate(
+        result = train_and_evaluate(
             train_texts, train_labels, test_texts, test_labels, vectorizer,
             dropout_rate=rate, use_class_weights=False, bidirectional=False,
             run_name=label
         )
-        dropout_results.append((label, tracker))
+        dropout_results.append((label, result))
 
     plot_comparison(
         dropout_results,
         title="Experiment 1: Macro-F1 — Dropout vs No Dropout\n(stars = each curve's best epoch)",
-        filename="exp1_dropout_comparison.png"
+        filename="dropout_comparison_gru_kaggle.png"
     )
 
     print("\nEXPERIMENT 1 SUMMARY")
-    for label, tracker in dropout_results:
-        print(f"  {label:<15} best_macro_f1={tracker.best_f1:.4f}  best_epoch={tracker.best_epoch}")
+    for label, result in dropout_results:
+        print(f"  {label:<15} best_macro_f1={result['best_f1']:.4f}  best_epoch={result['best_epoch']}")
 
-    best_label, best_tracker = max(dropout_results, key=lambda x: x[1].best_f1)
+    best_label, best_result = max(dropout_results, key=lambda x: x[1]['best_f1'])
     best_dropout = 0.0 if best_label == "no dropout" else float(best_label.split("=")[1])
-    print(f"\nBest setting: {best_label} (macro-F1={best_tracker.best_f1:.4f})")
+    print(f"\nBest setting: {best_label} (macro-F1={best_result['best_f1']:.4f})")
 
     # ============================================================
     # EXPERIMENT 2: Class weights ON vs OFF (using best dropout)
     # ============================================================
-    print(f"\n{'='*60}\nEXPERIMENT 2: CLASS WEIGHTS (dropout fixed at {best_dropout})\n{'='*60}")
+    print(f"\n{'='*45}\nEXPERIMENT 2: CLASS WEIGHTS (dropout fixed at {best_dropout})\n{'='*45}")
 
-    tracker_no_weight = train_and_evaluate(
+    result_no_weight = train_and_evaluate(
         train_texts, train_labels, test_texts, test_labels, vectorizer,
         dropout_rate=best_dropout, use_class_weights=False, bidirectional=False,
         run_name="Class weights OFF"
     )
-    tracker_with_weight = train_and_evaluate(
+    result_with_weight = train_and_evaluate(
         train_texts, train_labels, test_texts, test_labels, vectorizer,
         dropout_rate=best_dropout, use_class_weights=True, bidirectional=False,
         run_name="Class weights ON"
     )
 
     weight_results = [
-        ("No class weights", tracker_no_weight),
-        ("With class weights", tracker_with_weight),
+        ("No class weights", result_no_weight),
+        ("With class weights", result_with_weight),
     ]
     plot_comparison(
         weight_results,
         title=f"Experiment 2: Macro-F1 With vs Without Class Weights\n(dropout={best_dropout}, stars = best epoch)",
-        filename="exp2_class_weight_comparison.png"
+        filename="class_weight_comparison_gru_kaggle.png"
     )
 
     print("\nEXPERIMENT 2 SUMMARY")
-    for label, tracker in weight_results:
-        print(f"  {label:<20} best_macro_f1={tracker.best_f1:.4f}  best_epoch={tracker.best_epoch}")
+    for label, result in weight_results:
+        print(f"  {label:<20} best_macro_f1={result['best_f1']:.4f}  best_epoch={result['best_epoch']}")
 
     # pick best class-weight setting to carry into experiment 3
-    use_weights_for_exp3 = tracker_with_weight.best_f1 > tracker_no_weight.best_f1
+    use_weights_for_exp3 = result_with_weight['best_f1'] > result_no_weight['best_f1']
     print(f"\nUsing class_weights={'ON' if use_weights_for_exp3 else 'OFF'} for Experiment 3 "
           f"(whichever scored higher above)")
 
@@ -401,16 +420,16 @@ if __name__ == "__main__":
     # EXPERIMENT 3: Augmentation ON vs OFF
     # (best dropout + best class-weight setting from above)
     # ============================================================
-    print(f"\n{'='*60}\nEXPERIMENT 3: AUGMENTATION (dropout={best_dropout}, "
-          f"class_weights={'ON' if use_weights_for_exp3 else 'OFF'})\n{'='*60}")
+    print(f"\n{'='*45}\nEXPERIMENT 3: AUGMENTATION (dropout={best_dropout}, "
+          f"class_weights={'ON' if use_weights_for_exp3 else 'OFF'})\n{'='*45}")
 
-    tracker_no_aug = train_and_evaluate(
+    result_no_aug = train_and_evaluate(
         train_texts, train_labels, test_texts, test_labels, vectorizer,
         dropout_rate=best_dropout, use_class_weights=use_weights_for_exp3,
         bidirectional=False, use_augmentation=False,
         run_name="Augmentation OFF"
     )
-    tracker_with_aug = train_and_evaluate(
+    result_with_aug = train_and_evaluate(
         train_texts, train_labels, test_texts, test_labels, vectorizer,
         dropout_rate=best_dropout, use_class_weights=use_weights_for_exp3,
         bidirectional=False, use_augmentation=True,
@@ -418,23 +437,23 @@ if __name__ == "__main__":
     )
 
     aug_results = [
-        ("No augmentation", tracker_no_aug),
-        ("With augmentation", tracker_with_aug),
+        ("No augmentation", result_no_aug),
+        ("With augmentation", result_with_aug),
     ]
     plot_comparison(
         aug_results,
         title=f"Experiment 3: Macro-F1 With vs Without Augmentation\n"
               f"(dropout={best_dropout}, class_weights={'ON' if use_weights_for_exp3 else 'OFF'}, "
               f"stars = best epoch)",
-        filename="exp3_augmentation_comparison.png"
+        filename="augmentation_comparison_gru_kaggle.png"
     )
 
     print("\nEXPERIMENT 3 SUMMARY")
-    for label, tracker in aug_results:
-        print(f"  {label:<20} best_macro_f1={tracker.best_f1:.4f}  best_epoch={tracker.best_epoch}")
+    for label, result in aug_results:
+        print(f"  {label:<20} best_macro_f1={result['best_f1']:.4f}  best_epoch={result['best_epoch']}")
 
     # pick best augmentation setting to carry into experiment 4
-    use_augmentation_for_exp4 = tracker_with_aug.best_f1 > tracker_no_aug.best_f1
+    use_augmentation_for_exp4 = result_with_aug['best_f1'] > result_no_aug['best_f1']
     print(f"\nUsing augmentation={'ON' if use_augmentation_for_exp4 else 'OFF'} for Experiment 4 "
           f"(whichever scored higher above)")
 
@@ -442,46 +461,41 @@ if __name__ == "__main__":
     # EXPERIMENT 4: GRU vs Bidirectional GRU
     # (best dropout + best class-weight + best augmentation setting from above)
     # ============================================================
-    print(f"\n{'='*60}\nEXPERIMENT 4: GRU vs BiGRU\n{'='*60}")
+    print(f"\n{'='*45}\nEXPERIMENT 4: GRU vs BiGRU\n{'='*45}")
 
-    tracker_gru = train_and_evaluate(
+    result_gru = train_and_evaluate(
         train_texts, train_labels, test_texts, test_labels, vectorizer,
         dropout_rate=best_dropout, use_class_weights=use_weights_for_exp3,
         bidirectional=False, use_augmentation=use_augmentation_for_exp4, run_name="GRU"
     )
-    tracker_bi = train_and_evaluate(
+    result_bi = train_and_evaluate(
         train_texts, train_labels, test_texts, test_labels, vectorizer,
         dropout_rate=best_dropout, use_class_weights=use_weights_for_exp3,
         bidirectional=True, use_augmentation=use_augmentation_for_exp4, run_name="Bidirectional GRU"
     )
 
     arch_results = [
-        ("GRU", tracker_gru),
-        ("BiGRU", tracker_bi),
+        ("GRU", result_gru),
+        ("BiGRU", result_bi),
     ]
     plot_comparison(
         arch_results,
         title=f"Experiment 4: GRU vs BiGRU\n(dropout={best_dropout}, "
               f"class_weights={'ON' if use_weights_for_exp3 else 'OFF'}, "
               f"augmentation={'ON' if use_augmentation_for_exp4 else 'OFF'}, stars = best epoch)",
-        filename="exp4_gru_vs_bigru_comparison.png"
+        filename="gru_vs_bigru_comparison_gru_kaggle.png"
     )
 
     print("\nEXPERIMENT 4 SUMMARY")
-    for label, tracker in arch_results:
-        print(f"  {label:<15} best_macro_f1={tracker.best_f1:.4f}  best_epoch={tracker.best_epoch}")
+    for label, result in arch_results:
+        print(f"  {label:<15} best_macro_f1={result['best_f1']:.4f}  best_epoch={result['best_epoch']}")
 
     # ============================================================
     # FINAL OVERALL SUMMARY
     # ============================================================
-    print(f"\n{'='*60}\nFINAL OVERALL SUMMARY\n{'='*60}")
+    print(f"\n{'='*45}\nFINAL OVERALL SUMMARY\n{'='*45}")
     print(f"Best dropout setting (Exp 1): {best_label}")
     print(f"Best class-weight setting:    {'ON' if use_weights_for_exp3 else 'OFF'}")
     print(f"Best augmentation setting:    {'ON' if use_augmentation_for_exp4 else 'OFF'}")
-    print(f"GRU best macro-F1:     {tracker_gru.best_f1:.4f} (epoch {tracker_gru.best_epoch})")
-    print(f"BiGRU best macro-F1:   {tracker_bi.best_f1:.4f} (epoch {tracker_bi.best_epoch})")
-    print("\nSaved graphs:")
-    print("  exp1_dropout_comparison.png")
-    print("  exp2_class_weight_comparison.png")
-    print("  exp3_augmentation_comparison.png")
-    print("  exp4_gru_vs_bigru_comparison.png")
+    print(f"GRU best macro-F1:     {result_gru['best_f1']:.4f} (epoch {result_gru['best_epoch']})")
+    print(f"BiGRU best macro-F1:   {result_bi['best_f1']:.4f} (epoch {result_bi['best_epoch']})")
