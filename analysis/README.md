@@ -146,3 +146,72 @@ SimpleRNN vs BiSimpleRNN
 <a href="four_experiments_gru_twitter.py">four_experiments_gru_twitter.py</a>
 
 # Analysis for Data (Kaggle)
+
+### Model: BiSimpleRNN
+
+### Calculate the methods to choose the best Hyperparameters
+
+<b>MENTION — Best BiSimpleRNN Hyperparameters Found</b>
+
+
+Best Learning Rate [0.0005, 0.001, 0.002, 0.005]: 0.0005
+
+Best Vocab Size [6000, 10000, 15000]: 6000
+
+Best Embedding Dimension [32, 64, 128]: 64
+
+Best RNN Units [32, 64, 128]: 32
+
+Final combined BiSimpleRNN -> Accuracy: 68.23%  Macro-F1: 0.6335
+
+Dataset label distribution
+
+Train class counts -> Negative: 513 (12.5%) | Neutral: 2447 (59.4%) | Positive: 1159 (28.1%)
+Test class counts -> Negative: 91 (12.5%) | Neutral: 432 (59.4%) | Positive: 204 (28.1%)
+
+
+<a href="bisimplernn_hyperparameter_kaggle.py">bisimplernn_hyperparameter_kaggle.py</a>
+
+
+
+SimpleRNN       best_macro_f1=0.5691  best_epoch=16
+
+BiSimpleRNN     best_macro_f1=0.6353  best_epoch=6
+
+<b>FINAL OVERALL SUMMARY</b>
+
+Best dropout setting (Exp 1): dropout=0.45
+
+Best class-weight setting:    OFF
+
+Best augmentation setting:    ON
+
+SimpleRNN best macro-F1:     0.5691 (epoch 16)
+
+BiSimpleRNN best macro-F1:   0.6353 (epoch 6)
+
+
+
+<b>SimpleRNN (dropout, class weight, Augmentation, Bi-directional</b>
+
+Dropout:
+
+<img src="img/dropout_comparison_simplernn_kaggle.png">
+
+Class weight:
+
+<img src="img/class_weight_comparison_simplernn_kaggle.png">
+
+Augmentation (depending on NLP)
+
+<img src="img/augmentation_comparison_simplernn_kaggle.png">
+
+SimpleRNN vs BiSimpleRNN
+
+<img src="img/simplernn_vs_bisimplernn_comparison_simplernn_kaggle.png">
+
+<a href="four_experiments_simplernn_twitter.py">four_experiments_simplernn_kaggle.py</a>
+
+
+
+### Model: GRU
