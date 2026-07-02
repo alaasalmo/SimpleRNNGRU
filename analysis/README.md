@@ -292,7 +292,7 @@ Training time   : 32s
 Parameters      : 404,739
 ```
 
-<a src="bisimplernn_twitter_financial_final.py">bisimplernn_twitter_financial_final.py</a>
+<a href="bisimplernn_twitter_financial_final.py">bisimplernn_twitter_financial_final.py</a>
 
 ### Model: BiGRU
 
@@ -326,7 +326,7 @@ Training time   : 30s
 Parameters      : 438,147
 ```
 
-<a src="bigru_twitter_financial_final.py">bigru_twitter_financial_final.py</a>
+<a href="bigru_twitter_financial_final.py">bigru_twitter_financial_final.py</a>
 
 ## Kaggle stock news
 
@@ -357,7 +357,7 @@ Test macro-F1  : 0.6178
 Best val epoch : 3 (best val_macro_f1=0.5894)
 ```
 
-<a src="bisimplernn_kaggle_final.py">bisimplernn_kaggle_final.py</a>
+<a href="bisimplernn_kaggle_final.py">bisimplernn_kaggle_final.py</a>
 
 ### GRU
 
@@ -389,4 +389,4 @@ Best val epoch : 9 (best val_macro_f1=0.6296)
 
 ```
 
-<a src="bigru_kaggle_final.py">bigru_kaggle_final.py</a>
+<a href="bigru_kaggle_final.py">bigru_kaggle_final.py</a>
