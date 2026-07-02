@@ -216,7 +216,7 @@ Dataset label distribution
 Train class counts -> Negative: 513 (12.5%) | Neutral: 2447 (59.4%) | Positive: 1159 (28.1%)
 Test class counts -> Negative: 91 (12.5%) | Neutral: 432 (59.4%) | Positive: 204 (28.1%)
 ```
-<a href="bisimplernn_hyperparameter_taggle.py">bisimplernn_hyperparameter_taggle.py</a>
+<a href="bisimplernn_hyperparameter_kaggle.py">bisimplernn_hyperparameter_kaggle.py</a>
 
 ```
 EXPERIMENT 4 SUMMARY
@@ -250,6 +250,6 @@ Augmentation (depending on NLP)
 
 SimpleRNN vs BiSimpleRNN
 
-<img src="img/simplernn_vs_bisimplernn_comparison_gru_kaggle.png">
+<img src="img/gru_vs_bigru_comparison_gru_kaggle.png">
 
 <a href="four_experiments_gru_kaggle.py">four_experiments_gru_kaggle.py</a>
