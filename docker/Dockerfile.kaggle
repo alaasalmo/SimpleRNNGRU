@@ -1,21 +1,35 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
+# System deps some pip packages need for building/downloading
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        git \
-        curl \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.kaggle requirements.txt
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Python deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY birnn_bigru_kaggle_multiworker.py .
+# Pre-fetch NLTK data at build time so containers don't need network access
+# to nltk servers at runtime.
+RUN python -c "import nltk; nltk.download('wordnet', download_dir='/usr/local/nltk_data'); nltk.download('omw-1.4', download_dir='/usr/local/nltk_data')"
+ENV NLTK_DATA=/usr/local/nltk_data
 
-VOLUME ["/data/input", "/data/output"]
-EXPOSE 12345
+# Pre-fetch GloVe vectors at build time too. This is the key fix for the
+# multi-worker "Deadline Exceeded" / coordination-service heartbeat timeout:
+# MultiWorkerMirroredStrategy expects every worker to check in regularly once
+RUN mkdir -p /usr/local/glove \
+    && curl -L -o /tmp/glove.6B.zip https://nlp.stanford.edu/data/glove.6B.zip \
+    && python -c "import zipfile; zipfile.ZipFile('/tmp/glove.6B.zip').extract('glove.6B.100d.txt', '/usr/local/glove')" \
+    && rm /tmp/glove.6B.zip
+ENV GLOVE_DIR=/usr/local/glove
 
-# --model-type, --input, --output, --start-delay are passed at `docker run` time
-ENTRYPOINT ["python", "birnn_bigru_kaggle_multiworker.py"]
+COPY birnn_bigru_glove_attention_kaggle_multiworker.py .
+
+# /data/input must contain all-data.csv (Kaggle Financial PhraseBank),
+# and is also used as shared GloVe/NLTK cache space across workers.
+# /data/output is where logs, checkpoints, and reports get written.
+RUN mkdir -p /data/input /data/output
+
+ENTRYPOINT ["python", "birnn_bigru_glove_attention_kaggle_multiworker.py"]

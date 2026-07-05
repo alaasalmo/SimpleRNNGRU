@@ -34,13 +34,13 @@ We need to merge the two files from phase one. Merge the SimpleRNN and GRU for e
 
 <img src="img/twitter-SimpleRNN-GRU.png">
 
-<a href="birnn_bigru_twitter_multiworker.py">birnn_bigru_twitter_multiworker.py</a>
+<a href="birnn_bigru_glove_attention_twitter_multiworker.py">birnn_bigru_glove_attention_twitter_multiworker.py</a>
 
 <b>2-Twitter financial news for SimpleRNN and GRU</b>
 
 <img src="img/twitter-SimpleRNN-GRU.png">
 
-<a href="birnn_bigru_kaggle_multiworker.py">birnn_bigru_kaggle_multiworker.py</a>
+<a href="birnn_bigru_glove_attention_twitter_multiworker.py">birnn_bigru_glove_attention_twitter_multiworker.py</a>
 
 ## III. Prepare the file for building images
 
@@ -72,27 +72,39 @@ This is to keep the setting configuration for the cluster
 
 
 ```
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
+# System deps some pip packages need for building/downloading
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        git \
-        curl \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.kaggle requirements.txt
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Python deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY birnn_bigru_kaggle_multiworker.py .
+# Pre-fetch NLTK data at build time so containers don't need network access
+# to nltk servers at runtime.
+RUN python -c "import nltk; nltk.download('wordnet', download_dir='/usr/local/nltk_data'); nltk.download('omw-1.4', download_dir='/usr/local/nltk_data')"
+ENV NLTK_DATA=/usr/local/nltk_data
 
-VOLUME ["/data/input", "/data/output"]
-EXPOSE 12345
+# Pre-fetch GloVe vectors at build time too. This is the key fix for the
+# multi-worker "Deadline Exceeded" / coordination-service heartbeat timeout:
+# MultiWorkerMirroredStrategy expects every worker to check in regularly once
+RUN mkdir -p /usr/local/glove \
+    && curl -L -o /tmp/glove.6B.zip https://nlp.stanford.edu/data/glove.6B.zip \
+    && python -c "import zipfile; zipfile.ZipFile('/tmp/glove.6B.zip').extract('glove.6B.100d.txt', '/usr/local/glove')" \
+    && rm /tmp/glove.6B.zip
+ENV GLOVE_DIR=/usr/local/glove
 
-# --model-type, --input, --output, --start-delay are passed at `docker run` time
-ENTRYPOINT ["python", "birnn_bigru_kaggle_multiworker.py"]
+COPY birnn_bigru_glove_attention_twitter_multiworker.py .
+
+# /data/input and /data/output are meant to be bind-mounted or shared volumes
+RUN mkdir -p /data/input /data/output
+
+ENTRYPOINT ["python", "birnn_bigru_glove_attention_twitter_multiworker.py"]
 ```
 
 <a href="Dockerfile.twitter">Dockerfile.twitter</a>
@@ -123,32 +135,46 @@ This is to keep the setting configuration for the cluster
 
 File requirements for Dockerfile.kaggle
 
-- <a href="requirements.kaggle.txt">requirements.kaggle.txt</a>
-- <a href="birnn_bigru_kaggle_multiworker.py">birnn_bigru_kaggle_multiworker.py</a>
+- <a href="requirements.kaggle.txt">requirements.txt</a>
+- <a href="birnn_bigru_kaggle_multiworker.py">birnn_bigru_glove_attention_twitter_multiworker.py</a>
 
 
 ```
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
+# System deps some pip packages need for building/downloading
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        git \
-        curl \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.kaggle requirements.txt
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Python deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY birnn_bigru_kaggle_multiworker.py .
+# Pre-fetch NLTK data at build time so containers don't need network access
+# to nltk servers at runtime.
+RUN python -c "import nltk; nltk.download('wordnet', download_dir='/usr/local/nltk_data'); nltk.download('omw-1.4', download_dir='/usr/local/nltk_data')"
+ENV NLTK_DATA=/usr/local/nltk_data
 
-VOLUME ["/data/input", "/data/output"]
-EXPOSE 12345
+# Pre-fetch GloVe vectors at build time too. This is the key fix for the
+# multi-worker "Deadline Exceeded" / coordination-service heartbeat timeout:
+# MultiWorkerMirroredStrategy expects every worker to check in regularly once
+RUN mkdir -p /usr/local/glove \
+    && curl -L -o /tmp/glove.6B.zip https://nlp.stanford.edu/data/glove.6B.zip \
+    && python -c "import zipfile; zipfile.ZipFile('/tmp/glove.6B.zip').extract('glove.6B.100d.txt', '/usr/local/glove')" \
+    && rm /tmp/glove.6B.zip
+ENV GLOVE_DIR=/usr/local/glove
 
-# --model-type, --input, --output, --start-delay are passed at `docker run` time
-ENTRYPOINT ["python", "birnn_bigru_kaggle_multiworker.py"]
+COPY birnn_bigru_glove_attention_kaggle_multiworker.py .
+
+# /data/input must contain all-data.csv (Kaggle Financial PhraseBank),
+# and is also used as shared GloVe/NLTK cache space across workers.
+# /data/output is where logs, checkpoints, and reports get written.
+RUN mkdir -p /data/input /data/output
+
+ENTRYPOINT ["python", "birnn_bigru_glove_attention_kaggle_multiworker.py"]
 ```
 <a href="Dockerfile.kaggle">Dockerfile.kaggle</a>
 
@@ -186,24 +212,17 @@ We will need to build file for each worker bitsimplernn-worker-0.env, bitsimpler
 
 We need to pass paramter for cluster configuraiton to the image. We have to pass file instead of string because we are running the test on windows
 
+Remove old run dockers
 ```
-docker run -d --name bitsimplernn-worker-0 --hostname bitsimplernn-worker-0 `
-  --network tf_net --expose 12345 --env-file bitsimplernn-worker-0.env `
-  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" `
-  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-0:/data/output" `
-  birnngru-twitter:latest --input /data/input --output /data/output --model-type 1
+docker rm bitsimplernn-worker-0 bitsimplernn-worker-1 bitsimplernn-worker-2
+```
 
-docker run -d --name bitsimplernn-worker-1 --hostname bitsimplernn-worker-1 `
-  --network tf_net --expose 12345 --env-file bitsimplernn-worker-1.env `
-  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" `
-  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-1:/data/output" `
-  birnngru-twitter:latest --input /data/input --output /data/output --model-type 1 --start-delay 10
+```
 
-docker run -d --name bitsimplernn-worker-2 --hostname bitsimplernn-worker-2 `
-  --network tf_net --expose 12345 --env-file bitsimplernn-worker-2.env `
-  -v "//c/alaa/github/SimpleRNNGRU/docker/data/input:/data/input:ro" `
-  -v "//c/alaa/github/SimpleRNNGRU/docker/data/output/worker-2:/data/output" `
-  birnngru-twitter:latest --input /data/input --output /data/output --model-type 1 --start-delay 15
+docker run -d --name bitsimplernn-worker-0 --network sentiment-net --env-file bisimplernn-worker-0.env -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\input:/data/input" -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\output:/data/output" sentiment-twitter-worker --input /data/input --output /data/output --model-type 1
+docker run -d --name bitsimplernn-worker-1 --network sentiment-net --env-file bisimplernn-worker-1.env -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\input:/data/input" -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\output:/data/output" sentiment-twitter-worker --input /data/input --output /data/output --model-type 1
+docker run -d --name bitsimplernn-worker-2 --network sentiment-net --env-file bisimplernn-worker-2.env -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\input:/data/input" -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\output:/data/output" sentiment-twitter-worker --input /data/input --output /data/output --model-type 1
+
 ```
 The diagram below shows the three workers. The role of chief-worker and another workers.
 We can scale up the 
@@ -289,23 +308,9 @@ Note: If we want to do the testing for GRU, we have to run the docker commands i
 We need to copy the file all-data.csv to input folder. This file is from Kaggle. 
 
 ```
-docker run -d --name bitsimplernn-worker-0 --hostname bitsimplernn-worker-0 `
-  --network tf_net --expose 12345 --env-file bitsimplernn-worker-0.env `
-  -v "C:\alaa\github\SimpleRNNGRU\docker\data\input:/data/input:ro" `
-  -v "C:\alaa\github\SimpleRNNGRU\docker\data\output\worker-0:/data/output" `
-  birnngru-kaggle:latest --input /data/input --output /data/output --model-type 1
-
-docker run -d --name bitsimplernn-worker-1 --hostname bitsimplernn-worker-1 `
-  --network tf_net --expose 12345 --env-file bitsimplernn-worker-1.env `
-  -v "C:\alaa\github\SimpleRNNGRU\docker\data\input:/data/input:ro" `
-  -v "C:\alaa\github\SimpleRNNGRU\docker\data\output\worker-1:/data/output" `
-  birnngru-kaggle:latest --input /data/input --output /data/output --model-type 1 --start-delay 10
-  
-docker run -d --name bitsimplernn-worker-2 --hostname bitsimplernn-worker-2 `
-  --network tf_net --expose 12345 --env-file bitsimplernn-worker-2.env `
-  -v "C:\alaa\github\SimpleRNNGRU\docker\data\input:/data/input:ro" `
-  -v "C:\alaa\github\SimpleRNNGRU\docker\data\output\worker-2:/data/output" `
-  birnngru-kaggle:latest --input /data/input --output /data/output --model-type 1 --start-delay 15
+docker run -d --name bitsimplernn-worker-0 --network sentiment-net --env-file bisimplernn-worker-0.env -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\input:/data/input" -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\output:/data/output" sentiment-kaggle-worker --input /data/input --output /data/output --model-type 1
+docker run -d --name bitsimplernn-worker-1 --network sentiment-net --env-file bisimplernn-worker-1.env -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\input:/data/input" -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\output:/data/output" sentiment-kaggle-worker --input /data/input --output /data/output --model-type 1
+docker run -d --name bitsimplernn-worker-2 --network sentiment-net --env-file bisimplernn-worker-2.env -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\input:/data/input" -v "C:\alaa\tmu\project\finanace-example\docker\docker\data\output:/data/output" sentiment-kaggle-worker --input /data/input --output /data/output --model-type 1
 
 ```
 

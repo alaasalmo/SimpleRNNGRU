@@ -1,0 +1,5 @@
+tensorflow==2.15.0
+datasets
+scikit-learn
+nltk
+numpy

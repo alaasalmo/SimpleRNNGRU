@@ -1,35 +1,33 @@
-# =============================================================================
-#  Dataset : zeroshot/twitter-financial-news-sentiment (HuggingFace)
-#  Base    : python:3.11-slim
-#
-#  MODEL_TYPE is chosen at *runtime* via --model-type 1|2, not baked into
-#  the image, so the same image serves both BiSimpleRNN and BiGRU workers.
-#
-#  Volumes:
-#    /data/input   (ro)  → HuggingFace dataset cache (HF_HOME)
-#    /data/output  (rw)  → train.log, classification_report.txt,
-#                          sample_predictions.txt, checkpoints/, tensorboard/
-# =============================================================================
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
+# System deps some pip packages need for building/downloading
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        git \
-        curl \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Python deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
+# Pre-fetch NLTK data at build time so containers don't need network access
+# to nltk servers at runtime.
+RUN python -c "import nltk; nltk.download('wordnet', download_dir='/usr/local/nltk_data'); nltk.download('omw-1.4', download_dir='/usr/local/nltk_data')"
+ENV NLTK_DATA=/usr/local/nltk_data
 
-COPY requirements.twitter.txt requirements.txt
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Pre-fetch GloVe vectors at build time too. This is the key fix for the
+# multi-worker "Deadline Exceeded" / coordination-service heartbeat timeout:
+# MultiWorkerMirroredStrategy expects every worker to check in regularly once
+RUN mkdir -p /usr/local/glove \
+    && curl -L -o /tmp/glove.6B.zip https://nlp.stanford.edu/data/glove.6B.zip \
+    && python -c "import zipfile; zipfile.ZipFile('/tmp/glove.6B.zip').extract('glove.6B.100d.txt', '/usr/local/glove')" \
+    && rm /tmp/glove.6B.zip
+ENV GLOVE_DIR=/usr/local/glove
 
-COPY birnn_bigru_twitter_multiworker.py .
+COPY birnn_bigru_glove_attention_twitter_multiworker.py .
 
-VOLUME ["/data/input", "/data/output"]
-EXPOSE 12345
+# /data/input and /data/output are meant to be bind-mounted or shared volumes
+RUN mkdir -p /data/input /data/output
 
-# --model-type, --input, --output, --start-delay are passed at `docker run` time
-ENTRYPOINT ["python", "birnn_bigru_twitter_multiworker.py"]
+ENTRYPOINT ["python", "birnn_bigru_glove_attention_twitter_multiworker.py"]
