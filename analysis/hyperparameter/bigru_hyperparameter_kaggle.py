@@ -1,5 +1,10 @@
 
 import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # silence TF C++ INFO/WARNING/ERROR logs
+
+import warnings
+warnings.filterwarnings("ignore")  # silence Python-level UserWarnings (e.g. shuffle=True ignored)
+
 import random
 import numpy as np
 import pandas as pd
@@ -20,7 +25,6 @@ DEFAULTS = {
     "embedding_dim": 64,
     "rnn_units": 64,
     "max_len": 60,
-    "dropout_rate": 0.45,   # best result from the earlier dropout sweep
 }
 
 random.seed(SEED)
@@ -144,7 +148,7 @@ def train_with_early_stopping(model, train_ds, val_ds, val_labels, max_epochs, p
     epochs_trained = 0
 
     for epoch in range(max_epochs):
-        model.fit(train_ds, epochs=1, verbose=0)
+        model.fit(train_ds, epochs=1, verbose=0, shuffle=False)
         epochs_trained = epoch + 1
 
         current_f1 = evaluate_macro_f1(model, val_ds, val_labels)
@@ -170,22 +174,23 @@ def train_with_early_stopping(model, train_ds, val_ds, val_labels, max_epochs, p
     return best_f1, best_epoch, epochs_trained
 
 
-def build_model(vocab_size, embedding_dim, rnn_units, dropout_rate, learning_rate):
+def build_model(vocab_size, embedding_dim, rnn_units, learning_rate):
     """
-    BiSimpleRNN model: text -> embedding -> Bidirectional SimpleRNN -> 3 classes.
+    BiGRU model: text -> embedding -> Bidirectional GRU -> 3 classes.
 
-    Bidirectional wraps the SimpleRNN so it reads the sequence twice:
+    Bidirectional wraps the GRU so it reads the sequence twice:
       - Forward pass  (left to right, word 1 -> word N)
       - Backward pass (right to left, word N -> word 1)
     Both outputs are concatenated, giving the Dense layers a richer
-    representation of each tweet than a one-direction SimpleRNN would
-    produce. This doubles the effective output size of the RNN layer
-    (rnn_units*2).
+    representation of each headline/tweet than a one-direction GRU
+    would produce. This doubles the effective output size of the GRU
+    layer (rnn_units*2). GRU's gating (update/reset gates) also lets it
+    retain relevant context and forget irrelevant tokens better than a
+    plain SimpleRNN, at the cost of ~3x more parameters per unit.
     """
     model = tf.keras.Sequential([
         tf.keras.layers.Embedding(vocab_size, embedding_dim),
-        tf.keras.layers.Bidirectional(tf.keras.layers.SimpleRNN(rnn_units)),
-        tf.keras.layers.Dropout(dropout_rate),
+        tf.keras.layers.Bidirectional(tf.keras.layers.GRU(rnn_units)),
         tf.keras.layers.Dense(32, activation="relu"),
         tf.keras.layers.Dense(3, activation="softmax")
     ])
@@ -211,8 +216,7 @@ def run_one_config(tr_texts, tr_labels, val_texts, val_labels, test_texts, test_
     test_ds = to_tf_dataset(test_texts, test_labels, vectorizer, shuffle=False)
 
     model = build_model(config["vocab_size"], config["embedding_dim"],
-                         config["rnn_units"], config["dropout_rate"],
-                         config["learning_rate"])
+                         config["rnn_units"], config["learning_rate"])
 
     best_f1, best_epoch, epochs_trained = train_with_early_stopping(
         model, train_ds, val_ds, val_labels, max_epochs=EPOCHS, patience=PATIENCE
@@ -321,7 +325,7 @@ if __name__ == "__main__":
     # ---------------------------------------------------------
     # FINAL: best combination found across all sweeps
     # ---------------------------------------------------------
-    print("=== FINAL BEST BISIMPLERNN HYPERPARAMETER COMBINATION ===")
+    print("=== FINAL BEST BIGRU HYPERPARAMETER COMBINATION ===")
     print(DEFAULTS)
     final_result = run_one_config(tr_texts, tr_labels, val_texts, val_labels,
                                    test_texts, test_labels, DEFAULTS, "FINAL")
@@ -329,6 +333,7 @@ if __name__ == "__main__":
     print(f"Final Test Macro-F1 : {final_result['test_macro_f1']:.4f}")
     print(f"Stopped epoch       : {final_result['epochs_trained']} "
           f"(best epoch: {final_result['best_epoch']})")
+    print(f"Best epoch          : {final_result['best_epoch']}")
 
     # ---------------------------------------------------------
     # MENTION: one-glance summary of every best value found
@@ -340,13 +345,14 @@ if __name__ == "__main__":
         ("RNN Units",           "rnn_units",     [32, 64, 128]),
     ]
     print("\n" + "=" * 60)
-    print("MENTION — Best BiSimpleRNN Hyperparameters Found")
+    print("MENTION — Best BiGRU Hyperparameters Found")
     print("=" * 60)
     for name, key, values in sweeps_info:
         best_val = DEFAULTS[key]
         print(f"Best {name} {values}: {best_val}")
-    print(f"\nFinal combined BiSimpleRNN -> Accuracy: {final_result['test_acc']*100:.2f}%  "
+    print(f"\nFinal combined BiGRU -> Accuracy: {final_result['test_acc']*100:.2f}%  "
           f"Macro-F1: {final_result['test_macro_f1']:.4f}")
+    print(f"Best epoch (FINAL config): {final_result['best_epoch']}")
 
     print("\n" + "-" * 60)
     print("Dataset label distribution")
