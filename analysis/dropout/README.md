@@ -21,9 +21,9 @@
 Final (stopped epoch 13) | test_acc=0.7990 test_f1=0.7065 combined=0.7527
 ```
 
-<src="img\bisimplernn_dropout_comparison_twitter.png">
+<img src="img\bisimplernn_dropout_comparison_twitter.png">
 
-<a src="bisimplernn_dropout_sweep_twitter.py"></a>
+<a href="bisimplernn_dropout_sweep_twitter.py"></a>
 
 ## BiGRU for Twitter financial
 
@@ -39,9 +39,9 @@ Final (stopped epoch 13) | test_acc=0.7990 test_f1=0.7065 combined=0.7527
 Final (stopped epoch 6) | test_acc=0.8137 test_f1=0.7326 combined=0.7731
 ```
 
-<src="img\bigru_dropout_comparison_twitter.png">
+<img src="img\bigru_dropout_comparison_twitter.png">
 
-<a src="bigru_dropout_sweep_twitter.py">bigru_dropout_sweep_twitter.py</a>
+<a href="bigru_dropout_sweep_twitter.py">bigru_dropout_sweep_twitter.py</a>
 
 ## BiSimpleRNN for Kaggle financial
 
@@ -62,9 +62,9 @@ Final (stopped epoch 6) | test_acc=0.8137 test_f1=0.7326 combined=0.7731
 Final (epoch 12) | test_acc=0.6850 test_f1=0.5971 combined=0.6411
 ```
 
-<src="img\bisimplernn_dropout_comparison_kaggle.png">
+<img src="img\bisimplernn_dropout_comparison_kaggle.png">
 
-<a src="bisimplernn_dropout_sweep_kaggle.py">bisimplernn_dropout_sweep_kaggle.py</a>
+<a href="bisimplernn_dropout_sweep_kaggle.py">bisimplernn_dropout_sweep_kaggle.py</a>
 
 ## BiGRU for Kaggle financial
 
@@ -80,7 +80,7 @@ Final (epoch 12) | test_acc=0.6850 test_f1=0.5971 combined=0.6411
 Final (stopped epoch 6) | test_acc=0.7455 test_f1=0.6902 combined=0.7179
 ```
 
-<src="img\bigru_dropout_comparison_kaggle.png">
+<img src="img\bigru_dropout_comparison_kaggle.png">
 
-<a src="bigru_dropout_sweep_kaggle.py">bigru_dropout_sweep_kaggle.py</a>
+<a href="bigru_dropout_sweep_kaggle.py">bigru_dropout_sweep_kaggle.py</a>
 
