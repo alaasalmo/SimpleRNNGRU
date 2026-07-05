@@ -65,11 +65,11 @@ We use the Hyperparameters for step II.
 
 <a href="model-comparision">model-comparision</a>
 
-## VI. Choose Dropout percentage for each models
+## IV. Choose Dropout percentage for each models
     
 <a href="dropout">dropout</a>
 
-## VI. Building full model:
+## V. Building full model:
  
 ```
 Augmentation -> GloVe -> BiSimpleRNN -> Attention -> Dense -> Softmax
