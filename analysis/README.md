@@ -74,7 +74,7 @@ We use the Hyperparameters for step II.
     
 <a href="dropout">dropout</a>
 
-## V. Building full model:
+## V. Building full model & result:
  
 ```
 Augmentation -> GloVe -> BiSimpleRNN -> Attention -> Dense -> Softmax

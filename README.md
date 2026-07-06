@@ -9,6 +9,8 @@ The project will consist of three phases
 
 The first phase focuses on developing and improving the sentiment analysis models. In this first phase, we will compare these two models before and after the improvement. The improvement of models are bi-directional, Text Augmentation and Class weigh. Our comparison will depend on (Accuracy, precision, recall, f1-score and support). 
 
+<img src="img\analysis.jpg">
+
 <a href="analysis"> Simple RNN & GRU model</a>
 
 <b>2- Choose the improved models and build them in container</b>
