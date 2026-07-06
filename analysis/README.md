@@ -1,7 +1,14 @@
 # Data Analysis
 
 ## I. Choosing the Epochs methodology
-According the checking for the percentage of the two data sets, we see this data is moderate imbalance. For this reason, when we want to specifify the best epoch, we will depend on two factors (Accuracy + Macro-F1). Combining them — (accuracy + macro_f1) / 2 — gives you a single number that rewards a model for both being generally correct and not neglecting the minority class. That's the correct instinct given the moderate imbalance you found (4.3:1 and 4.8:1 ratios).
+
+Based on the class distribution analysis of the two datasets, both datasets exhibit a moderate class imbalance. Therefore, when selecting the optimal number of training epochs, we consider two evaluation metrics: accuracy and Macro-F1 score. We combine these metrics using the following equation:
+
+\[
+\text{Model Score} = \frac{\text{Accuracy} + \text{Macro-F1}}{2}
+\]	​
+
+This combined score provides a balanced evaluation by rewarding models that achieve high overall accuracy while also maintaining good performance across all classes, including the minority class. Given the moderate imbalance observed in the datasets (class ratios of 4.3:1 and 4.8:1), this approach provides a more reliable criterion for selecting the best-performing model than relying on accuracy alone.
 
 ```
 Twitter Financial News (0=bearish/negative, 1=bullish/positive, 2=neutral):
