@@ -23,6 +23,7 @@ Docker Desktop: https://www.docker.com/products/docker-desktop
 
 Docker is supported on both Windows and Linux operating systems. In this implementation, Docker Desktop will be installed on a Windows host to build and manage the containers.
 
+<img src="img\docker-drawio.png">
 
 <a href="docker">Simple RNN & GRU model container base</a>
 
