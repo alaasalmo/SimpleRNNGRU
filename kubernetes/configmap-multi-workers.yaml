@@ -1,0 +1,12 @@
+# ─────────────────────────────────────────────────────────────────────
+# ConfigMap — one object holding all three workers' TF_CONFIG values,
+# each under its own key. This replaces the three separate ConfigMaps.
+# ─────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bitsimplernn-worker-config
+data:
+  TF_CONFIG_0: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":0}}'
+  TF_CONFIG_1: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":1}}'
+  TF_CONFIG_2: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":2}}'

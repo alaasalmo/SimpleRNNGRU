@@ -1,0 +1,44 @@
+# ─────────────────────────────────────────────────────────────────────
+# Services — give each worker a stable DNS name matching what's inside
+# TF_CONFIG ("bitsimplernn-worker-0", "-1", "-2"). Without these, the
+# pods have no way to resolve each other by that hostname — this is
+# the Kubernetes equivalent of the shared Docker network + --name from
+# your docker run setup.
+# ─────────────────────────────────────────────────────────────────────
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitsimplernn-worker-0
+spec:
+  clusterIP: None   # headless service: DNS resolves directly to the pod
+  selector:
+    app: bitsimplernn-worker-0
+  ports:
+    - port: 12345
+      targetPort: 12345
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitsimplernn-worker-1
+spec:
+  clusterIP: None
+  selector:
+    app: bitsimplernn-worker-1
+  ports:
+    - port: 12345
+      targetPort: 12345
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitsimplernn-worker-2
+spec:
+  clusterIP: None
+  selector:
+    app: bitsimplernn-worker-2
+  ports:
+    - port: 12345
+      targetPort: 12345
+

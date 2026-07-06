@@ -1,0 +1,70 @@
+# ─────────────────────────────────────────────────────────────────────
+# PersistentVolumes + PersistentVolumeClaims — the shared /data/input
+# and /data/output paths, replacing per-pod hostPath volumes. All 3
+# worker pods below reference the SAME two PVCs (many pods can mount
+# one PVC at once on a single-node cluster like minikube), matching
+# how your docker run command mounted the same two host folders into
+# all three containers.
+#
+# NOTE: hostPath.path here is resolved INSIDE the minikube node, not
+# your raw Windows path. Bridge your Windows folder in first, e.g.:
+#   minikube mount "C:\alaa\tmu\project\finanace-example\docker\docker\data:/data"
+# (keep that command running in its own terminal while pods run), so
+# that /data/input and /data/output exist inside the minikube node.
+# ─────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: bitsimplernn-input-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadOnlyMany       # all workers only read from /data/input
+  storageClassName: manual
+  hostPath:
+    path: /data/input
+    type: Directory
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bitsimplernn-input-pvc
+spec:
+  accessModes:
+    - ReadOnlyMany
+  storageClassName: manual
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: bitsimplernn-input-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: bitsimplernn-output-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce      # single node, but multiple pods can still mount it
+  storageClassName: manual
+  hostPath:
+    path: /data/output
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bitsimplernn-output-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: bitsimplernn-output-pv
+  
