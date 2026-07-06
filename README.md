@@ -5,6 +5,8 @@
 
 The project will consist of three phases
 
+<img src="img\introduction-system.png">
+
 <b>1- Choose the Models for Deeplearning and improve them (SimpleRNN and GRU)</b>
 
 The first phase focuses on developing and improving the sentiment analysis models. In this first phase, we will compare these two models before and after the improvement. The improvement of models are bi-directional, Text Augmentation and Class weigh. Our comparison will depend on (Accuracy, precision, recall, f1-score and support). 
