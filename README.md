@@ -13,8 +13,25 @@ The first phase focuses on developing and improving the sentiment analysis model
 
 <b>2- Choose the improved models and build them in container</b>
 
+After selecting the optimal models, tuning the hyperparameters, applying dropout, and building the final architectures, the next step is to containerize the models using Docker. To do this, Docker Desktop must be installed on the host machine.
+
+Required software:
+
+Docker Desktop: https://www.docker.com/products/docker-desktop
+
+Docker is supported on both Windows and Linux operating systems. In this implementation, Docker Desktop will be installed on a Windows host to build and manage the containers.
+
+
 <a href="docker">Simple RNN & GRU model container base</a>
 
 <b>3- Choose the containers with Kubernetes and scale up the models</b>
 
 <b>Result and conclusion</b>
+
+
+Error, Overfitting
+
+Use Macro-F1 and Accuracy (hiesght)
+
+
+
