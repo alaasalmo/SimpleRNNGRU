@@ -31,15 +31,11 @@ Docker is supported on both Windows and Linux operating systems. In this impleme
 
 <b>3- Choose the containers with Kubernetes and scale up the models</b>
 
-Required sofware:
+<b>Required sofware:</b>
 
-For server as one node:
- 
-<a href="https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download">Minikube</a> 
+<b>For server as one node:</b> <a href="https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download">Minikube</a> 
 
-For client tool
-
-<a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/">Kubectl</a> 
+<b>For client tool:</b> <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/">Kubectl</a> 
 
 We will use Minikube instead of Kubernetes. With Minikube, we can run it on Windows and we can use the host machine as one node.
 
