@@ -29,10 +29,25 @@ Build configmap for all workers
 
 <a href=configmap-multi-workers.yaml>configmap-multi-workers.yaml</a> 
 
+```
+kubectl apply configmap-multi-workers.yaml
+
+```
+
 Build the services for all workers
 
 <a href="services-multi-workers.yaml">services-multi-workers.yaml</a>
 
+```
+kubectl apply services-multi-workers.yaml
+
+```
+
 Build PV and PVC
 
 <a href="pv-pvc-multi-workers.yaml">pv-pvc-multi-workers.yaml</a>
+
+```
+kubectl apply pv-pvc-multi-workers.yaml
+
+```
