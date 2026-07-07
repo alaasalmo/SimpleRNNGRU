@@ -81,4 +81,4 @@ Augmentation -> GloVe -> BiSimpleRNN -> Attention -> Dense -> Softmax
 Augmentation -> GloVe -> BiGRU -> Attention -> Dense -> Softmax
 ```
 
-<a href="pipeline">pipeline and result</a>
+<a href="pipeline">Model pipeline and final result</a>
