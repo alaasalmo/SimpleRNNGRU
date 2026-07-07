@@ -118,7 +118,7 @@ Best epoch      : 13 (out of 18 trained)
 <a href="glove_augmentation_bigru_attention_kaggle.py">glove_augmentation_bigru_attention_kaggle.py</a>
 
 
-##Twitter Financial Sentiment (Bearish / Bullish / Neutral)
+## Twitter Financial Sentiment (Bearish / Bullish / Neutral)
 
 | Metric        |      BiSimpleRNN       |  BiGRU | Winner
 |---------------|:-------------:|-------:|-------------: 
@@ -129,3 +129,19 @@ Best epoch      : 13 (out of 18 trained)
 | Bullish F1    |  0.646        |0.697   | GRU
 | Neutral F1    |  0.876        |0.887   | GRU
 | Best epoch    |  9/14         |12/17   | —
+
+<b>BiGRU wins on every metric </b> for Twitter data, and the gap is largest on the hardest class (Bearish, +0.052 F1). GRU also needed more epochs to converge but generalized better.
+
+## Kaggle Financial Sentiment (Negative / Neutral / Positive)
+
+| Metric         |     BiSimpleRNN | BiGRU   | Winner
+|----------------|:-------------:|-------:|-------------:
+| Test Accuracy  |     75.52%      | 77.99%  | GRU (+2.47)
+| Macro-F1       |     0.716       | 10.7380 | GRU (+0.022)
+| Combined Score |     0.735       | 70.7590 | GRU (+0.023)
+| Negative F1    |     0.705       | 0.721   | GRU
+| Neutral F1     |     0.822       | 0.846   | GRU
+| Positive F1    |     0.621       | 0.647   | GRU
+| Best epoch     |     13/18       | 13/18   | —
+
+<b>BiGRU wins again across the board</b>, though the margin is a bit tighter here than on Twitter. Positive/Bullish-type classes remain the weakest for both architectures on both datasets — consistent with these being minority or more linguistically ambiguous classes in financial text.
