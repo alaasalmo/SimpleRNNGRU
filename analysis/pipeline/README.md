@@ -116,3 +116,16 @@ Best epoch      : 13 (out of 18 trained)
 ```
 
 <a href="glove_augmentation_bigru_attention_kaggle.py">glove_augmentation_bigru_attention_kaggle.py</a>
+
+
+##Twitter Financial Sentiment (Bearish / Bullish / Neutral)
+
+| Metric        |      BiSimpleRNN       |  BiGRU | Winner
+|---------------|:-------------:|-------:|-------------: 
+| Test Accuracy |  79.27%       |81.62%  | GRU (+2.35)
+| Macro-F1      |  0.7014       |0.7392  | GRU (+0.038)
+| Combined Score|  0.7470       |0.7777  | GRU (+0.031)
+| Bearish F1    |  0.582        |0.634   | GRU           
+| Bullish F1    |  0.646        |0.697   | GRU
+| Neutral F1    |  0.876        |0.887   | GRU
+| Best epoch    |  9/14         |12/17   | —
