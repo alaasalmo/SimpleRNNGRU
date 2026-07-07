@@ -1,4 +1,4 @@
-# Data Analysis
+# Data Analysis and Result 
 
 ## I. Choosing the Epochs methodology
 
@@ -81,4 +81,4 @@ Augmentation -> GloVe -> BiSimpleRNN -> Attention -> Dense -> Softmax
 Augmentation -> GloVe -> BiGRU -> Attention -> Dense -> Softmax
 ```
 
-<a href="pipeline">pipeline</a>
+<a href="pipeline">pipeline and result</a>
