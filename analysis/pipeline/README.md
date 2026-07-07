@@ -117,8 +117,9 @@ Best epoch      : 13 (out of 18 trained)
 
 <a href="glove_augmentation_bigru_attention_kaggle.py">glove_augmentation_bigru_attention_kaggle.py</a>
 
+## Result
 
-## Twitter Financial Sentiment (Bearish / Bullish / Neutral)
+### Twitter Financial Sentiment (Bearish / Bullish / Neutral)
 
 | Metric        |      BiSimpleRNN       |  BiGRU | Winner
 |---------------|:-------------:|-------:|-------------: 
@@ -132,7 +133,7 @@ Best epoch      : 13 (out of 18 trained)
 
 <b>BiGRU wins on every metric </b> for Twitter data, and the gap is largest on the hardest class (Bearish, +0.052 F1). GRU also needed more epochs to converge but generalized better.
 
-## Kaggle Financial Sentiment (Negative / Neutral / Positive)
+### Kaggle Financial Sentiment (Negative / Neutral / Positive)
 
 | Metric         |     BiSimpleRNN | BiGRU   | Winner
 |----------------|:-------------:|-------:|-------------:
