@@ -145,4 +145,4 @@ Best epoch      : 13 (out of 18 trained)
 | Positive F1    |     0.621       | 0.647   | GRU
 | Best epoch     |     13/18       | 13/18   | —
 
-<b>BiGRU wins again across the board</b>, though the margin is a bit tighter here than on Twitter. Positive/Bullish-type classes remain the weakest for both architectures on both datasets — consistent with these being minority or more linguistically ambiguous classes in financial text.
+<b>BiGRU wins again across the board</b>, though the margin is a bit tighter here than on Twitter. Positive/Bullish-type classes remain the weakest for both architectures on both datasets consistent with these being minority or more linguistically ambiguous classes in financial text.
