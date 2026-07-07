@@ -13,7 +13,7 @@ The first phase focuses on developing and improving the sentiment analysis model
 
 <img src="img\analysis.jpg">
 
-<a href="analysis"> Simple RNN & GRU model</a>
+<a href="analysis"> Data Analysis and Result (Simple RNN & GRU model)</a>
 
 <b>2- Choose the improved models and build them in container</b>
 
