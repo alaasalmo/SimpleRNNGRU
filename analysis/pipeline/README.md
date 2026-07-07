@@ -146,3 +146,13 @@ Best epoch      : 13 (out of 18 trained)
 | Best epoch     |     13/18       | 13/18   | —
 
 <b>BiGRU wins again across the board</b>, though the margin is a bit tighter here than on Twitter. Positive/Bullish-type classes remain the weakest for both architectures on both datasets consistent with these being minority or more linguistically ambiguous classes in financial text.
+
+### Pipeline
+
+| Component            |  Why it's a reasonable choice
+|----------------------|:-----------------------------:
+| Augmentation         |Genuinely helps with the class imbalance and small dataset size we identified (4,846 rows, 12% minority class)
+| GloVe                |Better starting point than random embeddings brings in general semantic relationships without needing your own huge corpus
+| BiRNN (SimpleRNN/GRU)|Captures sequential context in both directions sound fundamental choice
+| Attention            |Lets the model focus on the actual sentiment bearing words rather than treating the whole sentence equally a real improvement over simple pooling
+ 
