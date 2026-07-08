@@ -9,7 +9,7 @@ The project will consist of three phases
 
 <b>1- Choose the Models for Deeplearning and improve them (SimpleRNN and GRU)</b>
 
-The first phase focuses on developing and improving the sentiment analysis models. In this first phase, we will compare these two models before and after the improvement. The improvement of models are bi-directional, Text Augmentation and Class weigh. Our comparison will depend on (Accuracy, precision, recall, f1-score and support). 
+The first phase focuses on developing and improving the sentiment analysis models. During this phase, we compare the performance of the two models before and after applying several improvement techniques. These techniques include bidirectional architectures, text augmentation, and class weighting. The models are evaluated and compared using accuracy, precision, recall, F1-score, and support.
 
 <img src="img\analysis.jpg">
 
@@ -20,6 +20,15 @@ The first phase focuses on developing and improving the sentiment analysis model
 After selecting the optimal models, tuning the hyperparameters, applying dropout, and building the final architectures, the next step is to containerize the models using Docker. To do this, Docker Desktop must be installed on the host machine.
 
 Required software:
+
+
+| Seq                |      Explanation       |  
+|--------------      |:----------------------:|
+| 1- Analysis  steps | <a href="https://github.com/alaasalmo/SimpleRNNGRU/tree/main/analysis">Data Analysis and Result</a>        |
+| 2- Result & Comparsion | <a href="https://github.com/alaasalmo/SimpleRNNGRU/blob/main/analysis/pipeline/README.md">Models and Result</a> |
+| 3- Model comparsion | <a href="https://github.com/alaasalmo/SimpleRNNGRU/tree/main/analysis/model-comparision"> SimpleRNN and GRU comparsion</a> |
+| 
+
 
 Docker Desktop: https://www.docker.com/products/docker-desktop
 
