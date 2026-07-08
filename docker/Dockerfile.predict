@@ -1,0 +1,21 @@
+# Predict/inference image for the BiSimpleRNN / BiGRU sentiment models.
+#
+# Built FROM the training image on purpose: it already has the exact same
+# TensorFlow/Keras version used to write the checkpoints, plus numpy. This
+# guarantees checkpoint format compatibility and avoids re-installing any
+# dependencies — the predict script itself needs nothing beyond what's
+# already in the training image.
+FROM birnngru-twitter:latest
+
+WORKDIR /app
+COPY predict_twitter_sentiment.py /app/predict_twitter_sentiment.py
+
+# Python deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# MODEL_TYPE is read from the env var if --model-type isn't passed explicitly.
+ENV MODEL_TYPE=1
+ENV OUTPUT_DIR=/data/output
+
+ENTRYPOINT ["python", "/app/predict_twitter_sentiment.py"]

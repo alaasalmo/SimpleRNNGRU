@@ -1,0 +1,177 @@
+# ─────────────────────────────────────────────────────────────────────
+# Jobs — one per worker, equivalent to your three `docker run` commands.
+#
+# Mapping from docker run -> Kubernetes:
+#   --name bitsimplernn-worker-N        -> metadata.name + label app: bitsimplernn-worker-N
+#                                           (label must match the Service selector in
+#                                           services-multi-workers.yaml so DNS resolves)
+#   --network sentiment-net             -> shared cluster network (implicit) + headless
+#                                           Services for name resolution
+#   --env-file bisimplernn-worker-N.env -> TF_CONFIG_N key from the bitsimplernn-worker-config
+#                                           ConfigMap, injected as TF_CONFIG
+#   -v .../data/input:/data/input        -> bitsimplernn-input-pvc  (ReadOnlyMany)
+#   -v .../data/output:/data/output       -> bitsimplernn-output-pvc (ReadWriteOnce)
+#   sentiment-twitter-worker             -> image (update if your registry path differs)
+#   --input /data/input --output /data/output --model-type 1 -> container args
+#
+# resources.requests/limits.memory -> 2Gi/4Gi per worker. Sized to fit within
+# a 14GB minikube VM (minikube start --memory=14000 --cpus=6): 3 workers x 4Gi
+# limit = 12Gi worst case, leaving ~2Gi headroom for kubelet/system pods.
+# If workers still get OOMKilled at this limit, raise it and increase
+# minikube's --memory to match (Docker Desktop's own memory cap is the
+# ceiling on all of this -- check Settings > Resources > Advanced first).
+#
+# restartPolicy: Never + backoffLimit -> since `docker run -d` just started a
+# long-running/one-shot process (not a Deployment meant to run forever), a Job
+# is the right primitive. If your worker is actually meant to run forever like
+# a service, tell me and I'll convert these to a Deployment/StatefulSet instead.
+# ─────────────────────────────────────────────────────────────────────
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bitsimplernn-worker-0
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: bitsimplernn-worker-0
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: bitsimplernn-worker
+          image: docker.io/library/birnngru-twitter:latest
+          imagePullPolicy: Never
+          resources:
+            requests:
+              memory: "2Gi"
+            limits:
+              memory: "4Gi"
+          args:
+            - "--input"
+            - "/data/input"
+            - "--output"
+            - "/data/output"
+            - "--model-type"
+            - "1"
+          env:
+            - name: TF_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: bitsimplernn-worker-config
+                  key: TF_CONFIG_0
+          ports:
+            - containerPort: 12345
+          volumeMounts:
+            - name: input-data
+              mountPath: /data/input
+              readOnly: true
+            - name: output-data
+              mountPath: /data/output
+      volumes:
+        - name: input-data
+          persistentVolumeClaim:
+            claimName: bitsimplernn-input-pvc
+        - name: output-data
+          persistentVolumeClaim:
+            claimName: bitsimplernn-output-pvc
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bitsimplernn-worker-1
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: bitsimplernn-worker-1
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: bitsimplernn-worker
+          image: docker.io/library/birnngru-twitter:latest
+          imagePullPolicy: Never
+          resources:
+            requests:
+              memory: "2Gi"
+            limits:
+              memory: "4Gi"
+          args:
+            - "--input"
+            - "/data/input"
+            - "--output"
+            - "/data/output"
+            - "--model-type"
+            - "1"
+          env:
+            - name: TF_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: bitsimplernn-worker-config
+                  key: TF_CONFIG_1
+          ports:
+            - containerPort: 12345
+          volumeMounts:
+            - name: input-data
+              mountPath: /data/input
+              readOnly: true
+            - name: output-data
+              mountPath: /data/output
+      volumes:
+        - name: input-data
+          persistentVolumeClaim:
+            claimName: bitsimplernn-input-pvc
+        - name: output-data
+          persistentVolumeClaim:
+            claimName: bitsimplernn-output-pvc
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bitsimplernn-worker-2
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: bitsimplernn-worker-2
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: bitsimplernn-worker
+          image: docker.io/library/birnngru-twitter:latest
+          imagePullPolicy: Never
+          resources:
+            requests:
+              memory: "2Gi"
+            limits:
+              memory: "4Gi"
+          args:
+            - "--input"
+            - "/data/input"
+            - "--output"
+            - "/data/output"
+            - "--model-type"
+            - "1"
+          env:
+            - name: TF_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: bitsimplernn-worker-config
+                  key: TF_CONFIG_2
+          ports:
+            - containerPort: 12345
+          volumeMounts:
+            - name: input-data
+              mountPath: /data/input
+              readOnly: true
+            - name: output-data
+              mountPath: /data/output
+      volumes:
+        - name: input-data
+          persistentVolumeClaim:
+            claimName: bitsimplernn-input-pvc
+        - name: output-data
+          persistentVolumeClaim:
+            claimName: bitsimplernn-output-pvc

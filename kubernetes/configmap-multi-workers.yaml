@@ -5,8 +5,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: bitsimplernn-worker-config
+  name: bisimplernn-config
 data:
-  TF_CONFIG_0: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":0}}'
-  TF_CONFIG_1: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":1}}'
-  TF_CONFIG_2: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":2}}'
+  # --- JSON-only values, actually consumed by the Jobs below ---
+  worker-0-tf-config: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":0}}'
+  worker-1-tf-config: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":1}}'
+  worker-2-tf-config: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":2}}'
+
+  MODEL_TYPE: "1"          # type of model passed to --model-type

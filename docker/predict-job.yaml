@@ -1,0 +1,42 @@
+##############################################################################
+# Job - runs inference once against the trained checkpoint in /data/output.
+# No TF_CONFIG needed (single process, not distributed). Reuses MODEL_TYPE
+# from the same ConfigMap used for training, so both stay in sync.
+##############################################################################
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sentiment-predict
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: sentiment-predict
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: sentiment-predict
+          image: sentiment-predict:latest
+          imagePullPolicy: Never
+          env:
+            - name: MODEL_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: bisimplernn-config
+                  key: MODEL_TYPE
+            - name: OUTPUT_DIR
+              value: "/data/output"
+          resources:
+            limits:
+              memory: "2Gi"
+            requests:
+              memory: "512Mi"
+          volumeMounts:
+            - name: output-data
+              mountPath: /data/output
+              readOnly: true      # prediction only reads checkpoints/vocab
+      volumes:
+        - name: output-data
+          persistentVolumeClaim:
+            claimName: sentiment-output-pvc

@@ -1,0 +1,129 @@
+##############################################################################
+# 1) ConfigMap - holds both worker .env files (TF_CONFIG for distributed
+#    TensorFlow), plus a JSON-only key per worker used to actually inject
+#    the TF_CONFIG env var into each Job (k8s env vars can't be parsed
+#    from "KEY=VALUE" file lines the way `docker --env-file` does it).
+##############################################################################
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bisimplernn-config
+data:
+  # --- original .env files, kept as-is for reference/documentation ---
+  bisimplernn-worker-0.env: |
+    TF_CONFIG={"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":0}}
+  bisimplernn-worker-1.env: |
+    TF_CONFIG={"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":1}}
+  bisimplernn-worker-2.env: |
+    TF_CONFIG={"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":2}}
+
+  # --- JSON-only values, actually consumed by the Jobs below ---
+  worker-0-tf-config: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":0}}'
+  worker-1-tf-config: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":1}}'
+  worker-2-tf-config: '{"cluster":{"worker":["bitsimplernn-worker-0:12345","bitsimplernn-worker-1:12345","bitsimplernn-worker-2:12345"]},"task":{"type":"worker","index":2}}'
+
+  MODEL_TYPE: "1"          # type of model passed to --model-type
+
+---
+##############################################################################
+# 2) PersistentVolumes + PersistentVolumeClaims for input and output data.
+#    hostPath is used here (equivalent to the Docker -v bind mounts).
+#    Replace hostPath.path with your node path, or swap for a StorageClass
+#    if running on a real cluster / cloud.
+##############################################################################
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sentiment-input-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /data/input
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sentiment-input-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: sentiment-input-pv
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sentiment-output-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /data/output
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sentiment-output-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: sentiment-output-pv
+  storageClassName: ""
+
+---
+##############################################################################
+# 3) Services - stable DNS names so the workers can reach each other at
+#    "bitsimplernn-worker-0:12345" / "bitsimplernn-worker-1:12345",
+#    exactly as referenced inside TF_CONFIG.
+##############################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitsimplernn-worker-0
+spec:
+  clusterIP: None          # headless, so DNS resolves straight to the pod
+  selector:
+    app: bisimplernn-worker
+    worker-index: "0"
+  ports:
+    - port: 12345
+      targetPort: 12345
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitsimplernn-worker-1
+spec:
+  clusterIP: None
+  selector:
+    app: bisimplernn-worker
+    worker-index: "1"
+  ports:
+    - port: 12345
+      targetPort: 12345
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitsimplernn-worker-2
+spec:
+  clusterIP: None
+  selector:
+    app: bisimplernn-worker
+    worker-index: "2"
+  ports:
+    - port: 12345
+      targetPort: 12345

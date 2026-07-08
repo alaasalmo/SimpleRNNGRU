@@ -1,0 +1,150 @@
+##############################################################################
+# 4) Jobs - one per worker. Each pulls its TF_CONFIG from the ConfigMap,
+#    mounts the shared input/output PVCs, and is capped at 5Gi memory.
+##############################################################################
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bisimplernn-worker-0
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: bisimplernn-worker
+        worker-index: "0"
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: bisimplernn-worker-0
+          image: birnngru-twitter:latest
+          imagePullPolicy: Never
+          args: ["--input", "/data/input", "--output", "/data/output", "--model-type", "1"]
+          env:
+            - name: TF_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: bisimplernn-config
+                  key: worker-0-tf-config
+            - name: MODEL_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: bisimplernn-config
+                  key: MODEL_TYPE
+            - name: TF_COORDINATION_SERVICE_TIMEOUT_MS
+              value: "100000"
+          resources:
+            limits:
+              memory: "4Gi"
+            requests:
+              memory: "1Gi"
+          volumeMounts:
+            - name: input-data
+              mountPath: /data/input
+            - name: output-data
+              mountPath: /data/output
+      volumes:
+        - name: input-data
+          persistentVolumeClaim:
+            claimName: sentiment-input-pvc
+        - name: output-data
+          persistentVolumeClaim:
+            claimName: sentiment-output-pvc
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bisimplernn-worker-1
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: bisimplernn-worker
+        worker-index: "1"
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: bisimplernn-worker-1
+          image: birnngru-twitter:latest
+          imagePullPolicy: Never
+          args: ["--input", "/data/input", "--output", "/data/output", "--model-type", "1"]
+          env:
+            - name: TF_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: bisimplernn-config
+                  key: worker-1-tf-config
+            - name: MODEL_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: bisimplernn-config
+                  key: MODEL_TYPE
+            - name: TF_COORDINATION_SERVICE_TIMEOUT_MS
+              value: "100000"
+          resources:
+            limits:
+              memory: "4Gi"
+            requests:
+              memory: "1Gi"
+          volumeMounts:
+            - name: input-data
+              mountPath: /data/input
+            - name: output-data
+              mountPath: /data/output
+      volumes:
+        - name: input-data
+          persistentVolumeClaim:
+            claimName: sentiment-input-pvc
+        - name: output-data
+          persistentVolumeClaim:
+            claimName: sentiment-output-pvc
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bisimplernn-worker-2
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: bisimplernn-worker
+        worker-index: "2"
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: bisimplernn-worker-2
+          image: birnngru-twitter:latest
+          imagePullPolicy: Never
+          args: ["--input", "/data/input", "--output", "/data/output", "--model-type", "1"]
+          env:
+            - name: TF_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: bisimplernn-config
+                  key: worker-2-tf-config
+            - name: MODEL_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: bisimplernn-config
+                  key: MODEL_TYPE
+            - name: TF_COORDINATION_SERVICE_TIMEOUT_MS
+              value: "100000"
+          resources:
+            limits:
+              memory: "4Gi"
+            requests:
+              memory: "1Gi"
+          volumeMounts:
+            - name: input-data
+              mountPath: /data/input
+            - name: output-data
+              mountPath: /data/output
+      volumes:
+        - name: input-data
+          persistentVolumeClaim:
+            claimName: sentiment-input-pvc
+        - name: output-data
+          persistentVolumeClaim:
+            claimName: sentiment-output-pvc
