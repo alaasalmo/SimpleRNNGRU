@@ -1,5 +1,7 @@
 # Data Analysis and Result 
 
+This section explains the methodology used to select the optimal number of training epochs and presents the best hyperparameters for each model. It then compares the performance of the SimpleRNN and Bidirectional SimpleRNN models, followed by a comparison between the GRU and Bidirectional GRU models. Finally, it presents the overall project pipeline and summarizes the corresponding results.
+
 ## I. Choosing the Epochs methodology
 
 Based on the class distribution analysis of the two datasets, both datasets exhibit a moderate class imbalance. Therefore, when selecting the optimal number of training epochs, we consider two evaluation metrics: accuracy and Macro-F1 score. We combine these metrics using the following equation:
