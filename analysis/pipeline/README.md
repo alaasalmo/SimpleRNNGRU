@@ -1,7 +1,9 @@
-#Implement the pipeline 
+# Implement the pipeline 
 
-FINAL RESULTS — Augmentation -> GloVe -> BiSimpleRNN -> Attention -> Dense -> Softmax
-FINAL RESULTS — Augmentation -> GloVe -> BiGRU -> Attention -> Dense -> Softmax
+In this project, we developed a pipeline that was applied to two financial sentiment analysis datasets: the Twitter Financial News dataset and the Kaggle Financial News dataset. The objective was to evaluate and identify the most effective approach for financial sentiment analysis across different datasets.
+
+FINAL RESULTS = Augmentation -> GloVe -> BiSimpleRNN -> Attention -> Dense -> Softmax
+FINAL RESULTS = Augmentation -> GloVe -> BiGRU -> Attention -> Dense -> Softmax
 
 ## BiSimpleRNN for Twitter financial
 Use:
