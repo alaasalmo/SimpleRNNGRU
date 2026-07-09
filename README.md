@@ -30,7 +30,7 @@ After selecting the optimal models, tuning the hyperparameters, applying dropout
 |Seq                  | Explanation | URL |
 |--------------------:| -----------: | -------:|
 | Required software   | For docker windows |  https://www.docker.com/products/docker-desktop |
-| Page                | Access to main page |  <a href="docker">Simple RNN & GRU model container base</a> |
+| Page                | Access to main page |  <a href="docker">Simple RNN & GRU model container base</a>|
 
 Docker is supported on both Windows and Linux operating systems. In this implementation, Docker Desktop will be installed on a Windows host to build and manage the containers.
 
@@ -39,23 +39,16 @@ Docker is supported on both Windows and Linux operating systems. In this impleme
 
 <b>3- Choose the containers with Kubernetes and scale up the models</b>
 
-<b>Required sofware:</b>
-
-<b>For server as one node:</b> <a href="https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download">Minikube</a> 
-
-<b>For client tool:</b> <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/">Kubectl</a> 
+| Seq    | Explanation | URL  |
+|-------:| -----------:|-----:|
+|1-      | Required software: Minikube | <a href="https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download">Minikube</a> |
+|2-      | Required software: Kubectl (Client tool) | <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/">Kubectl</a>|
+|3- The main page | DiSimpleRNN and DiRGU with Kubernetes | <a href="kubernetes">Deep learning models withkubernetes</a> |
 
 We will use Minikube instead of Kubernetes. With Minikube, we can run it on Windows and we can use the host machine as one node.
 
 
-<a href="kubernetes">kubernetes</a>
-
 <b>Result and conclusion</b>
-
-
-Error, Overfitting
-
-Use Macro-F1 and Accuracy (hiesght)
 
 
 
