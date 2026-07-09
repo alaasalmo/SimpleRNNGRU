@@ -13,14 +13,6 @@ The first phase focuses on developing and improving the sentiment analysis model
 
 <img src="img\analysis.jpg">
 
-<a href="analysis"> Data Analysis and Result (Simple RNN & GRU model)</a>
-
-<b>2- Choose the improved models and build them in container</b>
-
-After selecting the optimal models, tuning the hyperparameters, applying dropout, and building the final architectures, the next step is to containerize the models using Docker. To do this, Docker Desktop must be installed on the host machine.
-
-Required software:
-
 
 | Seq                |      Explanation       |  
 |--------------      |:----------------------:|
@@ -29,14 +21,21 @@ Required software:
 | 3- Model comparsion | <a href="https://github.com/alaasalmo/SimpleRNNGRU/tree/main/analysis/model-comparision"> SimpleRNN and GRU comparsion</a> |
 | 
 
+<a href="analysis"> Data Analysis and Result (Simple RNN & GRU model)</a>
 
-Docker Desktop: https://www.docker.com/products/docker-desktop
+<b>2- Choose the improved models and build them in container</b>
+
+After selecting the optimal models, tuning the hyperparameters, applying dropout, and building the final architectures, the next step is to containerize the models using Docker. To do this, Docker Desktop must be installed on the host machine.
+
+|Seq                  | Explanation | URL |
+|--------------------:| -----------: | -------:|
+| Required software   | For docker windows |  https://www.docker.com/products/docker-desktop |
+| Page                | Access to main page |  <a href="docker">Simple RNN & GRU model container base</a> |
 
 Docker is supported on both Windows and Linux operating systems. In this implementation, Docker Desktop will be installed on a Windows host to build and manage the containers.
 
 <img src="img\docker-drawio.png">
 
-<a href="docker">Simple RNN & GRU model container base</a>
 
 <b>3- Choose the containers with Kubernetes and scale up the models</b>
 
