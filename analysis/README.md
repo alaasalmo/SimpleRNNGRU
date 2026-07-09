@@ -67,7 +67,7 @@ Choose the best Hyperparameters from the array:
 
 <a href="hyperparameter">hyperparameter</a>
 
-## III. Choose the best models (SimppleRNN or DiSimpleRNN and GRU or DiGRU)
+## III. Choose the best models (SimppleRNN or BiSimpleRNN and GRU or BiGRU)
 We use the Hyperparameters for step II.
 
 <a href="modelcomparision">model-comparision</a>
