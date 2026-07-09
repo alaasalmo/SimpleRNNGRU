@@ -14,7 +14,7 @@ The first phase focuses on developing and improving the sentiment analysis model
 <img src="img\analysis.jpg">
 
 
-| Seq                |      Explanation       |  
+| Task                |      Explanation       |  
 |--------------      |:----------------------:|
 | 1- Analysis  steps | <a href="https://github.com/alaasalmo/SimpleRNNGRU/tree/main/analysis">Data Analysis and Result</a>        |
 | 2- Result & Comparsion | <a href="https://github.com/alaasalmo/SimpleRNNGRU/blob/main/analysis/pipeline/README.md">Models and Result</a> |
@@ -41,7 +41,7 @@ Docker is supported on both Windows and Linux operating systems. In this impleme
 |-------:| -----------:|-----:|
 |1-      | Required software: Minikube | <a href="https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download">Minikube</a> |
 |2-      | Required software: Kubectl (Client tool) | <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/">Kubectl</a>|
-|3- The main page | DiSimpleRNN and DiRGU with Kubernetes | <a href="kubernetes">Deep learning models withkubernetes</a> |
+|3- |The main page:DiSimpleRNN and DiRGU with Kubernetes | <a href="kubernetes">Deep learning models withkubernetes</a> |
 
 We will use Minikube instead of Kubernetes. With Minikube, we can run it on Windows and we can use the host machine as one node.
 
