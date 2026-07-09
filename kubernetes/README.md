@@ -102,7 +102,7 @@ kubectl apply services-multi-workers.yaml
 
 ```
 
-Build PV and PVC
+<b>Build PV and PVC</b>
 
 <a href="pv-pvc-multi-workers.yaml">pv-pvc-multi-workers.yaml</a>
 
@@ -111,7 +111,7 @@ kubectl apply pv-pvc-multi-workers.yaml
 
 ```
 
-Build the job to run the worker.
+<b>Build the job to run the worker</b>
 
 ```
 kubectl apply -f apply-jobs-multi-workers.yaml 
@@ -130,6 +130,9 @@ kubectl get jobs
 
 <img src="img\output-worker-2.png" >
 
+<b>Conclusion</b>
 
+Through this project, we demonstrate the implementation of distributed deep learning, where the training workload is distributed across multiple workers that can run on different servers (nodes). Although distributed training improves scalability and can significantly reduce training time as the number of workers increases, it also introduces additional complexity and communication overhead among the workers. For large-scale training, such as using 50 or more workers distributed across multiple machines (e.g., eight servers), the reduction in training time can outweigh these overhead costs. In this project, our objective is to demonstrate how distributed training can be implemented for deep learning models using Kubernetes. This approach has become increasingly popular for deploying and scaling AI workloads on Kubernetes-based platforms, such as IBM Cloud Pak for Data.
+  
 
 
