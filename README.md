@@ -19,7 +19,7 @@ The first phase focuses on developing and improving the sentiment analysis model
 | 1- Analysis  steps | <a href="https://github.com/alaasalmo/SimpleRNNGRU/tree/main/analysis">Data Analysis and Result</a>        |
 | 2- Result & Comparsion | <a href="https://github.com/alaasalmo/SimpleRNNGRU/blob/main/analysis/pipeline/README.md">Models and Result</a> |
 | 3- Model comparsion | <a href="https://github.com/alaasalmo/SimpleRNNGRU/tree/main/analysis/model-comparision"> SimpleRNN and GRU comparsion</a> |
-| 4- Main Page | Analysis methods |  <a href="analysis/">Data Analysis and Result (Simple RNN & GRU model)</a>|
+| 4- Main Page | Analysis methods | <a href="analysis/">Data Analysis and Result</a> |
 
 <b>2- Choose the improved models and build them in container</b>
 
