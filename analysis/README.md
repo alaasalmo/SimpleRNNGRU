@@ -70,7 +70,7 @@ Choose the best Hyperparameters from the array:
 ## III. Choose the best models (SimppleRNN or DiSimpleRNN and GRU or DiGRU)
 We use the Hyperparameters for step II.
 
-<a href="/modelcomparision">model-comparision</a>
+<a href="modelcomparision">model-comparision</a>
 
 ## IV. Choose Dropout percentage for each models
     
