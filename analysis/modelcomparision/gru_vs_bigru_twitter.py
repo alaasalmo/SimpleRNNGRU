@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from datasets import load_dataset
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import f1_score, accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 from collections import Counter
 
@@ -53,12 +53,27 @@ def build_vectorizer(texts, vocab_size, max_len):
     return vectorizer
 
 
-def to_tf_dataset(texts, labels, vectorizer, shuffle=True, batch_size=32):
+def to_tf_dataset(texts, labels, vectorizer, shuffle=True, batch_size=32, class_weight=None):
+    """
+    class_weight (optional): dict {label_int: weight_float}. When given, the
+    dataset yields (x, y, sample_weight) instead of (x, y). This is done
+    manually rather than via model.fit(class_weight=...), because that
+    parameter's handling of tf.data.Dataset inputs is inconsistent across
+    TF/Keras versions and can silently have no effect — baking the weight
+    into the dataset itself always works.
+    """
     ds = tf.data.Dataset.from_tensor_slices((texts, labels))
     if shuffle:
         ds = ds.shuffle(len(texts), seed=SEED)
     ds = ds.batch(batch_size)
-    ds = ds.map(lambda x, y: (vectorizer(x), y))
+    if class_weight is not None:
+        num_classes = len(class_weight)
+        weight_lookup = tf.constant(
+            [class_weight[i] for i in range(num_classes)], dtype=tf.float32
+        )
+        ds = ds.map(lambda x, y: (vectorizer(x), y, tf.gather(weight_lookup, y)))
+    else:
+        ds = ds.map(lambda x, y: (vectorizer(x), y))
     return ds.prefetch(tf.data.AUTOTUNE)
 
 
@@ -93,6 +108,8 @@ def train_with_early_stopping(model, train_ds, val_ds, val_labels, max_epochs, p
     Trains one epoch at a time, monitoring the combined (accuracy + macro-F1)/2
     score on the validation set. Keeps the best-performing weights and stops
     early if there's no improvement for `patience` epochs in a row.
+    Class weighting (if used) is baked into train_ds as a sample_weight
+    tensor, so this function stays agnostic to it.
     Returns (best_combined, best_epoch, epochs_trained, val_history), where
     val_history is a list of the combined score at each epoch trained.
     """
@@ -104,7 +121,8 @@ def train_with_early_stopping(model, train_ds, val_ds, val_labels, max_epochs, p
     val_history = []
 
     for epoch in range(max_epochs):
-        model.fit(train_ds, epochs=1, verbose=0)
+        history = model.fit(train_ds, epochs=1, verbose=0)
+        train_loss = history.history["loss"][0]
         epochs_trained = epoch + 1
 
         val_acc, val_f1, val_combined = evaluate_combined_score(model, val_ds, val_labels)
@@ -118,7 +136,8 @@ def train_with_early_stopping(model, train_ds, val_ds, val_labels, max_epochs, p
         else:
             epochs_without_improvement += 1
 
-        print(f"  epoch {epochs_trained:>2} | val_acc={val_acc:.4f} val_f1={val_f1:.4f} "
+        print(f"  epoch {epochs_trained:>2} | train_loss={train_loss:.4f} "
+              f"val_acc={val_acc:.4f} val_f1={val_f1:.4f} "
               f"val_combined={val_combined:.4f} "
               f"{'<-- best' if epochs_without_improvement == 0 else ''}")
 
@@ -152,7 +171,7 @@ def build_model(vocab_size, embedding_dim, rnn_units, learning_rate, bidirection
         tf.keras.layers.Dense(3, activation="softmax")
     ])
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+        optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate, clipnorm=1.0),
         loss="sparse_categorical_crossentropy",
         metrics=["accuracy"]
     )
@@ -164,11 +183,12 @@ def build_model(vocab_size, embedding_dim, rnn_units, learning_rate, bidirection
 # ==================================================================
 def run_one_variant(tr_texts, tr_labels, val_texts, val_labels, test_texts, test_labels,
                      vectorizer, config, bidirectional, label):
+    print(f"\n=== {label} ===")
+
     train_ds = to_tf_dataset(tr_texts, tr_labels, vectorizer, shuffle=True)
     val_ds = to_tf_dataset(val_texts, val_labels, vectorizer, shuffle=False)
     test_ds = to_tf_dataset(test_texts, test_labels, vectorizer, shuffle=False)
 
-    print(f"\n=== {label} ===")
     model = build_model(config["vocab_size"], config["embedding_dim"],
                          config["rnn_units"], config["learning_rate"],
                          bidirectional=bidirectional)
@@ -191,7 +211,8 @@ def run_one_variant(tr_texts, tr_labels, val_texts, val_labels, test_texts, test
             "test_acc": test_acc, "test_macro_f1": test_f1,
             "test_combined": test_combined, "per_class_f1": per_class_f1,
             "epochs_trained": epochs_trained, "best_epoch": best_epoch,
-            "val_history": val_history}
+            "val_history": val_history,
+            "test_true_labels": test_labels, "test_pred_labels": predicted_labels}
 
 
 # ==================================================================
@@ -231,6 +252,50 @@ def plot_results(results, filename="gru_vs_bigru_twitter.png"):
 
 
 # ==================================================================
+# PLOT: confusion matrix for each model, printed as text tables
+# ==================================================================
+def print_confusion_matrix(result):
+    """
+    Prints a row-normalized confusion matrix as a plain text table:
+    rows = true label, columns = predicted label. Each cell shows
+    count and row percentage, e.g. "106 (30.5%)".
+    """
+    cm = confusion_matrix(result["test_true_labels"], result["test_pred_labels"],
+                           labels=list(range(len(CLASS_NAMES))))
+    cm_norm = cm.astype(float) / cm.sum(axis=1, keepdims=True)
+
+    col_names = [c.capitalize() for c in CLASS_NAMES]
+    row_label_w = max(len(c) for c in col_names) + 6  # room for "True: "
+    cell_w = 16
+
+    header = f"{result['label']}  (Acc: {result['test_acc']*100:.2f}%  " \
+             f"Macro-F1: {result['test_macro_f1']:.4f})"
+    print("\n" + header)
+    print("-" * len(header))
+
+    # Column header row
+    print(" " * row_label_w + "".join(f"{c:^{cell_w}}" for c in col_names) +
+          f"{'Total':^{cell_w}}")
+
+    for i, true_name in enumerate(col_names):
+        row_label = f"True: {true_name}"
+        cells = "".join(
+            f"{f'{cm[i, j]} ({cm_norm[i, j]*100:.1f}%)':^{cell_w}}"
+            for j in range(len(col_names))
+        )
+        total = cm[i].sum()
+        print(f"{row_label:<{row_label_w}}" + cells + f"{total:^{cell_w}}")
+
+
+def print_confusion_matrices(results):
+    print("\n" + "=" * 70)
+    print("Confusion Matrices (row-normalized) — Test Set")
+    print("=" * 70)
+    for r in results:
+        print_confusion_matrix(r)
+
+
+# ==================================================================
 # RUN: GRU vs BiGRU, same fixed hyperparameters
 # ==================================================================
 if __name__ == "__main__":
@@ -259,6 +324,7 @@ if __name__ == "__main__":
     )
 
     plot_results([gru_result, bigru_result])
+    print_confusion_matrices([gru_result, bigru_result])
 
     # ---------------------------------------------------------
     # COMPARISON SUMMARY

@@ -1,21 +1,10 @@
-"""
-SimpleRNN vs BiSimpleRNN comparison — fixed hyperparameters, early stopping
-on the combined (accuracy + macro-F1) / 2 score. Kaggle Financial
-PhraseBank dataset (all-data.csv).
-
-Both models use the same DEFAULTS below (no sweeping). Each is trained
-epoch-by-epoch with early stopping: training stops once the combined
-score hasn't improved for PATIENCE epochs, and the best epoch's weights
-are restored before final test-set evaluation.
-"""
-
 import os
 import random
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import f1_score, accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 from collections import Counter
 
@@ -224,7 +213,8 @@ def run_one_variant(tr_texts, tr_labels, val_texts, val_labels, test_texts, test
             "test_acc": test_acc, "test_macro_f1": test_f1,
             "test_combined": test_combined, "per_class_f1": per_class_f1,
             "epochs_trained": epochs_trained, "best_epoch": best_epoch,
-            "val_history": val_history}
+            "val_history": val_history,
+            "test_true_labels": test_labels, "test_pred_labels": predicted_labels}
 
 
 # ==================================================================
@@ -264,6 +254,50 @@ def plot_results(results, filename="simplernn_vs_bisimplernn_kaggle.png"):
 
 
 # ==================================================================
+# PRINT: confusion matrix for each model, as plain text tables
+# ==================================================================
+def print_confusion_matrix(result):
+    """
+    Prints a row-normalized confusion matrix as a plain text table:
+    rows = true label, columns = predicted label. Each cell shows
+    count and row percentage, e.g. "106 (30.5%)".
+    """
+    cm = confusion_matrix(result["test_true_labels"], result["test_pred_labels"],
+                           labels=list(range(len(CLASS_NAMES))))
+    cm_norm = cm.astype(float) / cm.sum(axis=1, keepdims=True)
+
+    col_names = [c.capitalize() for c in CLASS_NAMES]
+    row_label_w = max(len(c) for c in col_names) + 6  # room for "True: "
+    cell_w = 16
+
+    header = f"{result['label']}  (Acc: {result['test_acc']*100:.2f}%  " \
+             f"Macro-F1: {result['test_macro_f1']:.4f})"
+    print("\n" + header)
+    print("-" * len(header))
+
+    # Column header row
+    print(" " * row_label_w + "".join(f"{c:^{cell_w}}" for c in col_names) +
+          f"{'Total':^{cell_w}}")
+
+    for i, true_name in enumerate(col_names):
+        row_label = f"True: {true_name}"
+        cells = "".join(
+            f"{f'{cm[i, j]} ({cm_norm[i, j]*100:.1f}%)':^{cell_w}}"
+            for j in range(len(col_names))
+        )
+        total = cm[i].sum()
+        print(f"{row_label:<{row_label_w}}" + cells + f"{total:^{cell_w}}")
+
+
+def print_confusion_matrices(results):
+    print("\n" + "=" * 70)
+    print("Confusion Matrices (row-normalized) — Test Set")
+    print("=" * 70)
+    for r in results:
+        print_confusion_matrix(r)
+
+
+# ==================================================================
 # RUN: SimpleRNN vs BiSimpleRNN, same fixed hyperparameters
 # ==================================================================
 if __name__ == "__main__":
@@ -292,6 +326,7 @@ if __name__ == "__main__":
     )
 
     plot_results([simplernn_result, bisimplernn_result])
+    print_confusion_matrices([simplernn_result, bisimplernn_result])
 
     # ---------------------------------------------------------
     # COMPARISON SUMMARY
