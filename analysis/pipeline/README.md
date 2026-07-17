@@ -118,26 +118,6 @@ Negative F1: 0.721 | Neutral F1: 0.846 | Positive F1: 0.647
 Best epoch      : 13 (out of 18 trained)
 ```
 
-```
-======================================================================
-Confusion Matrices (row-normalized) — Test Set
-======================================================================
-
-GRU  (Acc: 67.68%  Macro-F1: 0.6195)
-------------------------------------
-                  Negative        Neutral         Positive         Total      
-True: Negative   58 (63.7%)      15 (16.5%)      18 (19.8%)          91       
-True: Neutral    21 (4.9%)      337 (78.0%)      74 (17.1%)         432       
-True: Positive   29 (14.2%)      78 (38.2%)      97 (47.5%)         204       
-
-BiGRU  (Acc: 72.90%  Macro-F1: 0.6809)
---------------------------------------
-                  Negative        Neutral         Positive         Total      
-True: Negative   57 (62.6%)      21 (23.1%)      13 (14.3%)          91       
-True: Neutral    16 (3.7%)      352 (81.5%)      64 (14.8%)         432       
-True: Positive   16 (7.8%)       67 (32.8%)     121 (59.3%)         204       
-```
-
 <a href="glove_augmentation_bigru_attention_kaggle.py">glove_augmentation_bigru_attention_kaggle.py</a>
 
 ## Result

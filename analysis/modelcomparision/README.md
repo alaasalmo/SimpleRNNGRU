@@ -15,8 +15,6 @@ Model              Acc  Macro-F1  Combined  Best Epoch   Stopped
 SimpleRNN       59.38%    0.4536    0.5237          18        23
 BiSimpleRNN     78.64%    0.6801    0.7333           6        11
 ```
-<img src="img\simplernn_vs_bisimplernn_twitter.png">
-
 
 ```
 ======================================================================
@@ -38,6 +36,8 @@ True: Neutral   58 (3.7%)       69 (4.4%)      1439 (91.9%)        1566
 Better model (by combined score): BiSimpleRNN (combined=0.7333, best epoch=6)
 
 ```
+
+<img src="img\simplernn_vs_bisimplernn_twitter.png">
 
 <a href="simplernn_vs_bisimplernn_twitter.py">simplernn_vs_bisimplernn_twitter.py</a>
 
@@ -118,6 +118,25 @@ GRU             67.68%    0.6195    0.6481          18        23
 BiGRU           72.90%    0.6809    0.7050           8        13
 
 Better model (by combined score): BiGRU (combined=0.7050, best epoch=8)
+```
+
+```
+Confusion Matrices (row-normalized) — Test Set
+======================================================================
+
+GRU  (Acc: 67.68%  Macro-F1: 0.6195)
+------------------------------------
+                  Negative        Neutral         Positive         Total      
+True: Negative   58 (63.7%)      15 (16.5%)      18 (19.8%)          91       
+True: Neutral    21 (4.9%)      337 (78.0%)      74 (17.1%)         432       
+True: Positive   29 (14.2%)      78 (38.2%)      97 (47.5%)         204       
+
+BiGRU  (Acc: 72.90%  Macro-F1: 0.6809)
+--------------------------------------
+                  Negative        Neutral         Positive         Total      
+True: Negative   57 (62.6%)      21 (23.1%)      13 (14.3%)          91       
+True: Neutral    16 (3.7%)      352 (81.5%)      64 (14.8%)         432       
+True: Positive   16 (7.8%)       67 (32.8%)     121 (59.3%)         204       
 ```
 
 <img src="img\gru_vs_bigru_kaggle.png">
