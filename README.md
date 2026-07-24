@@ -173,9 +173,13 @@ Among the two models, BiGRU consistently outperformed BiSimpleRNN in both traini
 ### 📂 Repository Structure
 
 SimpleRNNGRU/
+
 ├──<a href="analysis">analysis/</a>
+
 ├──<a href="docker">docker/</a>
+
 ├──<a href="kubernetes">kubernetes/</a>
+
 ├──<a href="simplernngru">Simplernngru/</a>
 
 ---
